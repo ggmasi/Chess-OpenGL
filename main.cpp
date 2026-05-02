@@ -2,7 +2,7 @@
 #include <GL/glew.h>
 //biblioteca para criar a janela de visualização
 #include <GLFW/glfw3.h>
-//biblioteca para aplicações matmáticas
+//biblioteca para aplicações matemáticas
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -122,15 +122,55 @@ int main() {
     
 
 
-    float vertices[] = {
-        0.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f,
-        1.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f
+    float verticesCubo[] = {
+    // Face de trás
+    0.0f, 0.0f, 0.0f, 
+    1.0f, 0.0f, 0.0f, 
+    1.0f, 1.0f, 0.0f, 
+    1.0f, 1.0f, 0.0f, 
+    0.0f, 1.0f, 0.0f, 
+    0.0f, 0.0f, 0.0f, 
 
-    };
+    // Face da frente
+    0.0f, 0.0f, 1.0f, 
+    1.0f, 0.0f, 1.0f, 
+    1.0f, 1.0f, 1.0f, 
+    1.0f, 1.0f, 1.0f, 
+    0.0f, 1.0f, 1.0f, 
+    0.0f, 0.0f, 1.0f, 
+
+    // Face da esquerda
+    0.0f, 1.0f, 1.0f, 
+    0.0f, 1.0f, 0.0f, 
+    0.0f, 0.0f, 0.0f, 
+    0.0f, 0.0f, 0.0f, 
+    0.0f, 0.0f, 1.0f, 
+    0.0f, 1.0f, 1.0f, 
+
+    // Face da direita
+    1.0f, 1.0f, 1.0f, 
+    1.0f, 1.0f, 0.0f, 
+    1.0f, 0.0f, 0.0f, 
+    1.0f, 0.0f, 0.0f, 
+    1.0f, 0.0f, 1.0f, 
+    1.0f, 1.0f, 1.0f, 
+
+    // Face de baixo
+    0.0f, 0.0f, 0.0f, 
+    1.0f, 0.0f, 0.0f, 
+    1.0f, 0.0f, 1.0f, 
+    1.0f, 0.0f, 1.0f, 
+    0.0f, 0.0f, 1.0f, 
+    0.0f, 0.0f, 0.0f, 
+
+    // Face de cima
+    0.0f, 1.0f, 0.0f, 
+    1.0f, 1.0f, 0.0f, 
+    1.0f, 1.0f, 1.0f, 
+    1.0f, 1.0f, 1.0f, 
+    0.0f, 1.0f, 1.0f, 
+    0.0f, 1.0f, 0.0f
+};
 
     //criação da estrutura para armazenar grande números de vértices na memória da GPU (vertex buffer object)
     unsigned int VBO;
@@ -142,7 +182,7 @@ int main() {
     //para qualquer atualização no GL_ARRAY_BUFFER, será atualizado o VBO
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     //copia os valores de "vertices[]" para o VBO
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(verticesCubo), verticesCubo, GL_STATIC_DRAW);
     //instruções para a GPU conseguir ler o VBO corretamente
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -153,7 +193,7 @@ int main() {
     glBindVertexArray(0);
 
 
-
+    glEnable(GL_DEPTH_TEST);
 
 
     //o loop de renderização (Roda até a janela ser fechada)
@@ -174,31 +214,24 @@ int main() {
 
         //calcula a proporção da tela em determinado instante
         float proporcaoTela = (float)largura/(float)altura;
-
-        //cria a matriz com proporção universal
-        glm::mat4 projecao;
         
-        //se a tela for mais larga que alta (Landscape)
-        if (largura >= altura) {
-            projecao = glm::ortho(-proporcaoTela, proporcaoTela, -1.0f, 1.0f, -1.0f, 1.0f);
-        } 
-        //se a tela for mais alta que larga (Portrait)
-        else {
-            projecao = glm::ortho(-1.0f, 1.0f, -1.0f / proporcaoTela, 1.0f / proporcaoTela, -1.0f, 1.0f);
-        }
-
         //renderização: Pinta a tela com uma cor de fundo (Azul escuro)
         glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
         glUseProgram(shaderProgram);
-
-        //envia a matriz calculada para a GPU
+        
+        //cria a matriz de projeção e envia para a GPU
+        glm::mat4 projecao = glm::perspective(glm::radians(45.0f), proporcaoTela, 0.1f, 100.0f);
         int projecaoLoc = glGetUniformLocation(shaderProgram, "projecao");
         glUniformMatrix4fv(projecaoLoc, 1, GL_FALSE, glm::value_ptr(projecao));
 
         //cria e envia uma matriz de câmera
-        glm::mat4 view = glm::mat4(1.0f);
+        glm::mat4 view = glm::lookAt(
+            glm::vec3(4.0f, 8.0f, 14.0f), //olho da câmera
+            glm::vec3(4.0f, 0.0f, 4.0f), //olhando para o centro do tabuleiro
+            glm::vec3(0.0f, 1.0f, 0.0f) //vetor para cima
+        );
         int viewLoc = glGetUniformLocation(shaderProgram, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
@@ -223,12 +256,47 @@ int main() {
                 //calculo da matriz Model, utilizando x e z para transladar. y = o, já que o tabuleiro está no plano XZ
                 glm::mat4 model = glm::mat4(1.0f);
                 model = glm::translate(model, glm::vec3(x, 0.0f, z));
+                model = glm::scale(model, glm::vec3(1.0f, 0.2f, 1.0f)); //achata os cubos
                 glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-                glDrawArrays(GL_TRIANGLES, 0, 6);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
             }
             
         }
+        
+        glUniform3f(corLoc, 0.3f, 0.15f, 0.05f); // Cor sólida para a madeira
+
+        glm::mat4 modelBorda;
+
+        // Borda Esquerda (Esticada no eixo Z)
+        modelBorda = glm::mat4(1.0f);
+        modelBorda = glm::translate(modelBorda, glm::vec3(-0.5f, 0.0f, -0.5f)); 
+        modelBorda = glm::scale(modelBorda, glm::vec3(0.5f, 0.25f, 9.0f));       
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBorda));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // Borda Direita (Esticada no eixo Z)
+        modelBorda = glm::mat4(1.0f);
+        modelBorda = glm::translate(modelBorda, glm::vec3(8.0f, 0.0f, -0.5f));
+        modelBorda = glm::scale(modelBorda, glm::vec3(0.5f, 0.25f, 9.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBorda));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // Borda Fundo / Superior (Esticada no eixo X)
+        modelBorda = glm::mat4(1.0f);
+        modelBorda = glm::translate(modelBorda, glm::vec3(0.0f, 0.0f, -0.5f));
+        modelBorda = glm::scale(modelBorda, glm::vec3(8.0f, 0.25f, 0.5f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBorda));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // Borda Frente / Inferior (Esticada no eixo X)
+        modelBorda = glm::mat4(1.0f);
+        modelBorda = glm::translate(modelBorda, glm::vec3(0.0f, 0.0f, 8.0f));
+        modelBorda = glm::scale(modelBorda, glm::vec3(8.0f, 0.25f, 0.5f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBorda));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
         
 
 
