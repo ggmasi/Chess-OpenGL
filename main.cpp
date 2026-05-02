@@ -10,6 +10,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 using namespace std;
 
@@ -28,7 +29,49 @@ string ReadShaderFile(const char* filePath){
     return buffer.str();
 }
 
+bool LoadOBJ(const char* path, vector<float>& outVertices){
+    vector<glm::vec3> verticesTemporarios;
 
+    ifstream arquivo(path);
+    if(!arquivo.is_open()){
+        cerr << "Falha ao abrir o modelo: " << path << endl;
+        return false;
+    }
+
+    string linha;
+    while(getline(arquivo, linha)){
+        istringstream iss(linha);
+        string tipo;
+        iss >> tipo; //le a primeira palavra da linha 
+
+        if(tipo == "v"){ // se for um vertice
+            glm::vec3 vertice;
+            iss >> vertice.x >> vertice.y >> vertice.z;
+            verticesTemporarios.push_back(vertice);
+        }else if(tipo == "f"){ //se for uma face
+            int i1, i2, i3;
+            iss >> i1 >> i2 >> i3;
+
+            i1--; i2--; i3--; //converte para index 0
+
+            //adiciona os 3 pontos do triangulo
+            outVertices.push_back(verticesTemporarios[i1].x);
+            outVertices.push_back(verticesTemporarios[i1].y);
+            outVertices.push_back(verticesTemporarios[i1].z);
+
+            outVertices.push_back(verticesTemporarios[i2].x);
+            outVertices.push_back(verticesTemporarios[i2].y);
+            outVertices.push_back(verticesTemporarios[i2].z);
+
+            outVertices.push_back(verticesTemporarios[i3].x);
+            outVertices.push_back(verticesTemporarios[i3].y);
+            outVertices.push_back(verticesTemporarios[i3].z);
+        }
+    }
+
+    arquivo.close();
+    return true;
+}
 
 int main() {
 
@@ -123,69 +166,86 @@ int main() {
 
 
     float verticesCubo[] = {
-    // Face de trás
-    0.0f, 0.0f, 0.0f, 
-    1.0f, 0.0f, 0.0f, 
-    1.0f, 1.0f, 0.0f, 
-    1.0f, 1.0f, 0.0f, 
-    0.0f, 1.0f, 0.0f, 
-    0.0f, 0.0f, 0.0f, 
+        // Face de trás
+        0.0f, 0.0f, 0.0f, 
+        1.0f, 0.0f, 0.0f, 
+        1.0f, 1.0f, 0.0f, 
+        1.0f, 1.0f, 0.0f, 
+        0.0f, 1.0f, 0.0f, 
+        0.0f, 0.0f, 0.0f, 
 
-    // Face da frente
-    0.0f, 0.0f, 1.0f, 
-    1.0f, 0.0f, 1.0f, 
-    1.0f, 1.0f, 1.0f, 
-    1.0f, 1.0f, 1.0f, 
-    0.0f, 1.0f, 1.0f, 
-    0.0f, 0.0f, 1.0f, 
+        // Face da frente
+        0.0f, 0.0f, 1.0f, 
+        1.0f, 0.0f, 1.0f, 
+        1.0f, 1.0f, 1.0f, 
+        1.0f, 1.0f, 1.0f, 
+        0.0f, 1.0f, 1.0f, 
+        0.0f, 0.0f, 1.0f, 
 
-    // Face da esquerda
-    0.0f, 1.0f, 1.0f, 
-    0.0f, 1.0f, 0.0f, 
-    0.0f, 0.0f, 0.0f, 
-    0.0f, 0.0f, 0.0f, 
-    0.0f, 0.0f, 1.0f, 
-    0.0f, 1.0f, 1.0f, 
+        // Face da esquerda
+        0.0f, 1.0f, 1.0f, 
+        0.0f, 1.0f, 0.0f, 
+        0.0f, 0.0f, 0.0f, 
+        0.0f, 0.0f, 0.0f, 
+        0.0f, 0.0f, 1.0f, 
+        0.0f, 1.0f, 1.0f, 
 
-    // Face da direita
-    1.0f, 1.0f, 1.0f, 
-    1.0f, 1.0f, 0.0f, 
-    1.0f, 0.0f, 0.0f, 
-    1.0f, 0.0f, 0.0f, 
-    1.0f, 0.0f, 1.0f, 
-    1.0f, 1.0f, 1.0f, 
+        // Face da direita
+        1.0f, 1.0f, 1.0f, 
+        1.0f, 1.0f, 0.0f, 
+        1.0f, 0.0f, 0.0f, 
+        1.0f, 0.0f, 0.0f, 
+        1.0f, 0.0f, 1.0f, 
+        1.0f, 1.0f, 1.0f, 
 
-    // Face de baixo
-    0.0f, 0.0f, 0.0f, 
-    1.0f, 0.0f, 0.0f, 
-    1.0f, 0.0f, 1.0f, 
-    1.0f, 0.0f, 1.0f, 
-    0.0f, 0.0f, 1.0f, 
-    0.0f, 0.0f, 0.0f, 
+        // Face de baixo
+        0.0f, 0.0f, 0.0f, 
+        1.0f, 0.0f, 0.0f, 
+        1.0f, 0.0f, 1.0f, 
+        1.0f, 0.0f, 1.0f, 
+        0.0f, 0.0f, 1.0f, 
+        0.0f, 0.0f, 0.0f, 
 
-    // Face de cima
-    0.0f, 1.0f, 0.0f, 
-    1.0f, 1.0f, 0.0f, 
-    1.0f, 1.0f, 1.0f, 
-    1.0f, 1.0f, 1.0f, 
-    0.0f, 1.0f, 1.0f, 
-    0.0f, 1.0f, 0.0f
-};
+        // Face de cima
+        0.0f, 1.0f, 0.0f, 
+        1.0f, 1.0f, 0.0f, 
+        1.0f, 1.0f, 1.0f, 
+        1.0f, 1.0f, 1.0f, 
+        0.0f, 1.0f, 1.0f, 
+        0.0f, 1.0f, 0.0f
+    };
 
+    //estruturas para desenhar o tabuleiro
     //criação da estrutura para armazenar grande números de vértices na memória da GPU (vertex buffer object)
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
+    unsigned int VBO_Tabuleiro;
+    glGenBuffers(1, &VBO_Tabuleiro);
     //criação da estrutura que indica à GPU como o VBO está estruturado
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    unsigned int VAO_Tabuleiro;
+    glGenVertexArrays(1, &VAO_Tabuleiro);
+    glBindVertexArray(VAO_Tabuleiro);
     //para qualquer atualização no GL_ARRAY_BUFFER, será atualizado o VBO
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Tabuleiro);
     //copia os valores de "vertices[]" para o VBO
     glBufferData(GL_ARRAY_BUFFER, sizeof(verticesCubo), verticesCubo, GL_STATIC_DRAW);
     //instruções para a GPU conseguir ler o VBO corretamente
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    
+
+
+
+    vector<float> verticesPeao;
+    LoadOBJ("models/peao_teste.obj", verticesPeao);
+
+    unsigned int VAO_Peao, VBO_Peao;
+    glGenVertexArrays(1, &VAO_Peao);
+    glGenBuffers(1, &VBO_Peao);
+    glBindVertexArray(VAO_Peao);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_Peao);
+    glBufferData(GL_ARRAY_BUFFER, verticesPeao.size() * sizeof(float), verticesPeao.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
 
 
     //desconexão para evitar que codigos futuros alterem o VAO/VBO acidentalmente
@@ -239,7 +299,7 @@ int main() {
         int modelLoc = glGetUniformLocation(shaderProgram, "model");
         int corLoc = glGetUniformLocation(shaderProgram, "corCasa");
 
-        glBindVertexArray(VAO);
+        glBindVertexArray(VAO_Tabuleiro);
         
         //desenha o tabuleiro
         for (int x = 0; x < 8; x++){
@@ -297,6 +357,27 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
+        //desenho peao teste
+        glBindVertexArray(VAO_Peao);
+        glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
+        for (int i = 0; i < 8; i++){
+            glm::mat4 modelPeao = glm::mat4(1.0f);
+            
+            modelPeao = glm::translate(modelPeao, glm::vec3((float)i+0.5f, 0.2f, 6.5f));
+            modelPeao = glm::scale(modelPeao, glm::vec3(0.6f, 0.6f, 0.6f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelPeao));
+            glDrawArrays(GL_TRIANGLES, 0, verticesPeao.size()/3);
+        }
+
+        glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
+        for (int i = 0; i < 8; i++){
+            glm::mat4 modelPeao = glm::mat4(1.0f);
+            
+            modelPeao = glm::translate(modelPeao, glm::vec3((float)i+0.5f, 0.2f, 1.5f));
+            modelPeao = glm::scale(modelPeao, glm::vec3(0.6f, 0.6f, 0.6f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelPeao));
+            glDrawArrays(GL_TRIANGLES, 0, verticesPeao.size()/3);
+        }
         
 
 
@@ -306,7 +387,7 @@ int main() {
     }
 
     //limpa a memória e fecha
-    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &VBO_Tabuleiro);
     glDeleteProgram(shaderProgram);
     glfwTerminate();
     return 0;
