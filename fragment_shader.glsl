@@ -3,7 +3,8 @@ out vec4 FragColor;
 
 //shader que decide as cores
 
+uniform vec3 corCasa;
 
 void main(){
-    FragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    FragColor = vec4(corCasa, 1.0);
 }

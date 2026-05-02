@@ -125,10 +125,10 @@ int main() {
     float vertices[] = {
         0.0f, 0.0f, 0.0f,
         1.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f,
         1.0f, 0.0f, 0.0f,
-        1.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f
+        1.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f
 
     };
 
@@ -197,8 +197,40 @@ int main() {
         int projecaoLoc = glGetUniformLocation(shaderProgram, "projecao");
         glUniformMatrix4fv(projecaoLoc, 1, GL_FALSE, glm::value_ptr(projecao));
 
+        //cria e envia uma matriz de câmera
+        glm::mat4 view = glm::mat4(1.0f);
+        int viewLoc = glGetUniformLocation(shaderProgram, "view");
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+        //pega as localizações dos uniforms
+        int modelLoc = glGetUniformLocation(shaderProgram, "model");
+        int corLoc = glGetUniformLocation(shaderProgram, "corCasa");
+
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        
+        //desenha o tabuleiro
+        for (int x = 0; x < 8; x++){
+            for (int z = 0; z < 8; z++){
+                //logica para alterar cores
+                glm::vec3 cor;
+                if((x+z)%2 == 0){
+                    cor = glm::vec3(0.9f, 0.9f, 0.8f); //bege claro
+                }else{
+                    cor = glm::vec3(0.4f, 0.2f, 0.1f); //marrom escuro
+                }
+                glUniform3f(corLoc, cor.r, cor.g, cor.b);
+                
+                //calculo da matriz Model, utilizando x e z para transladar. y = o, já que o tabuleiro está no plano XZ
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, glm::vec3(x, 0.0f, z));
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+                glDrawArrays(GL_TRIANGLES, 0, 6);
+            }
+            
+        }
+        
+
 
         //troca os buffers e verifica eventos do sistema (mouse, teclado)
         glfwSwapBuffers(window);
