@@ -2,25 +2,36 @@
 #include <GL/glew.h>
 //biblioteca para criar a janela de visualização
 #include <GLFW/glfw3.h>
+//biblioteca para aplicações matmáticas
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
+//função para ler o arquivo vertex_shader.gsls
+string ReadShaderFile(const char* filePath){
+    ifstream arquivo(filePath);
+    if(!arquivo.is_open()){
+        cerr << "Não foi possível abrir o arquivo " << filePath << endl;
+        return ""; 
+    }
+
+    stringstream buffer;
+    buffer << arquivo.rdbuf(); //coloca todo o conteúdo do arquivo no buffer
+    arquivo.close();
+
+    return buffer.str();
+}
+
+
+
 int main() {
 
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.0f, 0.5f, 0.0f
-    };
-
-    //criação da estrutura para armazenar grande números de vértices na memória da GPU (vertex buffer object)
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
-    //para qualquer atualização no GL_ARRAY_BUFFER, será atualizado o VBO
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    //copia os valores de "vertices[]" para o VBO
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     
     //inicializa a biblioteca da janela (GLFW)
     if (!glfwInit()) {
@@ -41,7 +52,7 @@ int main() {
         return -1;
     }
     glfwMakeContextCurrent(window);
-
+    
     //inicializa o GLEW (carrega as funções do OpenGL)
     glewExperimental = GL_TRUE; 
     if (glewInit() != GLEW_OK) {
@@ -49,15 +60,145 @@ int main() {
         return -1;
     }
 
-    //o Loop de Renderização (Roda até a janela ser fechada)
+
+    string codigoVertexShader = ReadShaderFile("vertex_shader.glsl");
+
+    //converte a string para um ponteiro de caracteres
+    const char* vertexShaderSource = codigoVertexShader.c_str();
+
+    //declaração do vertexShader
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+    //atribuição do codigo fonte do shader ao objeto
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+
+
+    //verificação se a compilação ocorreu corretamente
+    int success;
+    char infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if(!success){
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << endl;
+    }
+
+
+    string codigoFragmentShader = ReadShaderFile("fragment_shader.glsl");
+    //converte a string para um ponteiro de caracteres
+    const char* fragmentShaderSource = codigoFragmentShader.c_str();
+    
+    //declaração do fragmentShader
+    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    //atribuição do codigo fonte do shader ao objeto
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+    //verificação se a compilação ocorreu corretamente
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if(!success){
+        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << endl;
+    }
+
+    //declaracao do shaderProgram
+    unsigned int shaderProgram = glCreateProgram();
+
+    //atribuição dos shaders anteriores ao shaderProgram
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+
+    //verificação se a compilação ocorreu corretamente
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if(!success){
+        glGetShaderInfoLog(shaderProgram, 512, NULL, infoLog);
+        cerr << "ERROR::SHADER::PROGRAM::COMPILATION_FAILED\n" << infoLog << endl;
+    }
+
+    //com o shaderProgram já compilado, tanto o vertex quanto o fragmente podem ser deletados
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    
+
+
+    float vertices[] = {
+        0.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,
+        1.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 0.0f
+
+    };
+
+    //criação da estrutura para armazenar grande números de vértices na memória da GPU (vertex buffer object)
+    unsigned int VBO;
+    glGenBuffers(1, &VBO);
+    //criação da estrutura que indica à GPU como o VBO está estruturado
+    unsigned int VAO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+    //para qualquer atualização no GL_ARRAY_BUFFER, será atualizado o VBO
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    //copia os valores de "vertices[]" para o VBO
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    //instruções para a GPU conseguir ler o VBO corretamente
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+
+    //desconexão para evitar que codigos futuros alterem o VAO/VBO acidentalmente
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+
+
+
+
+    //o loop de renderização (Roda até a janela ser fechada)
     while (!glfwWindowShouldClose(window)) {
         //entrada (ex: se apertar ESC, fecha a janela)
         if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
 
+        //pega a largura e altura dinâmicas da janela
+        int largura, altura;
+        glfwGetFramebufferSize(window, &largura, &altura);
+
+        //prevenção de divisão por zero (minimização da tela)
+        if(altura == 0) altura = 1;
+        
+        //atualiza a área de desenho para ocupar a tela toda
+        glViewport(0, 0, largura, altura);
+
+        //calcula a proporção da tela em determinado instante
+        float proporcaoTela = (float)largura/(float)altura;
+
+        //cria a matriz com proporção universal
+        glm::mat4 projecao;
+        
+        //se a tela for mais larga que alta (Landscape)
+        if (largura >= altura) {
+            projecao = glm::ortho(-proporcaoTela, proporcaoTela, -1.0f, 1.0f, -1.0f, 1.0f);
+        } 
+        //se a tela for mais alta que larga (Portrait)
+        else {
+            projecao = glm::ortho(-1.0f, 1.0f, -1.0f / proporcaoTela, 1.0f / proporcaoTela, -1.0f, 1.0f);
+        }
+
         //renderização: Pinta a tela com uma cor de fundo (Azul escuro)
         glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        glUseProgram(shaderProgram);
+
+        //envia a matriz calculada para a GPU
+        int projecaoLoc = glGetUniformLocation(shaderProgram, "projecao");
+        glUniformMatrix4fv(projecaoLoc, 1, GL_FALSE, glm::value_ptr(projecao));
+
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
 
         //troca os buffers e verifica eventos do sistema (mouse, teclado)
         glfwSwapBuffers(window);
@@ -65,6 +206,8 @@ int main() {
     }
 
     //limpa a memória e fecha
+    glDeleteBuffers(1, &VBO);
+    glDeleteProgram(shaderProgram);
     glfwTerminate();
     return 0;
 }
