@@ -76,6 +76,90 @@ bool LoadOBJ(const char* path, vector<float>& outVertices){
     return true;
 }
 
+
+bool DrawBoard(int modelLoc, int corLoc, int shaderProgram){
+
+    for (int x = 0; x < 8; x++){
+            for (int z = 0; z < 8; z++){
+                //logica para alterar cores
+                glm::vec3 cor;
+                if((x+z)%2 == 0){
+                    cor = glm::vec3(0.9f, 0.9f, 0.8f); //bege claro
+                }else{
+                    cor = glm::vec3(0.4f, 0.2f, 0.1f); //marrom escuro
+                }
+                glUniform3f(corLoc, cor.r, cor.g, cor.b);
+                
+                //calculo da matriz Model, utilizando x e z para transladar. y = o, já que o tabuleiro está no plano XZ
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, glm::vec3(x, 0.0f, z));
+                model = glm::scale(model, glm::vec3(1.0f, 0.2f, 1.0f)); //achata os cubos
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
+            
+        }
+        
+        glUniform3f(corLoc, 0.3f, 0.15f, 0.05f); // Cor sólida para a madeira
+
+        glm::mat4 modelBorda;
+
+        // Borda Esquerda (Esticada no eixo Z)
+        modelBorda = glm::mat4(1.0f);
+        modelBorda = glm::translate(modelBorda, glm::vec3(-0.5f, 0.0f, -0.5f)); 
+        modelBorda = glm::scale(modelBorda, glm::vec3(0.5f, 0.25f, 9.0f));       
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBorda));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // Borda Direita (Esticada no eixo Z)
+        modelBorda = glm::mat4(1.0f);
+        modelBorda = glm::translate(modelBorda, glm::vec3(8.0f, 0.0f, -0.5f));
+        modelBorda = glm::scale(modelBorda, glm::vec3(0.5f, 0.25f, 9.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBorda));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // Borda Fundo / Superior (Esticada no eixo X)
+        modelBorda = glm::mat4(1.0f);
+        modelBorda = glm::translate(modelBorda, glm::vec3(0.0f, 0.0f, -0.5f));
+        modelBorda = glm::scale(modelBorda, glm::vec3(8.0f, 0.25f, 0.5f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBorda));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // Borda Frente / Inferior (Esticada no eixo X)
+        modelBorda = glm::mat4(1.0f);
+        modelBorda = glm::translate(modelBorda, glm::vec3(0.0f, 0.0f, 8.0f));
+        modelBorda = glm::scale(modelBorda, glm::vec3(8.0f, 0.25f, 0.5f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBorda));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        return true;
+}
+
+bool DrawPawn(int modelLoc, int corLoc, int shaderProgram, int tam){
+    glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
+    for (int i = 0; i < 8; i++){
+        glm::mat4 modelPeao = glm::mat4(1.0f);
+        
+        modelPeao = glm::translate(modelPeao, glm::vec3((float)i+0.5f, 0.2f, 6.5f));
+        modelPeao = glm::scale(modelPeao, glm::vec3(1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelPeao));
+        glDrawArrays(GL_TRIANGLES, 0, tam/3);
+    }
+
+    glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
+    for (int i = 0; i < 8; i++){
+        glm::mat4 modelPeao = glm::mat4(1.0f);
+        
+        modelPeao = glm::translate(modelPeao, glm::vec3((float)i+0.5f, 0.2f, 1.5f));
+        modelPeao = glm::scale(modelPeao, glm::vec3(1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelPeao));
+        glDrawArrays(GL_TRIANGLES, 0, tam/3);
+    }
+
+    return true;
+}
+
 int main() {
 
     
@@ -302,86 +386,16 @@ int main() {
         int modelLoc = glGetUniformLocation(shaderProgram, "model");
         int corLoc = glGetUniformLocation(shaderProgram, "corCasa");
 
+        
         glBindVertexArray(VAO_Tabuleiro);
-        
         //desenha o tabuleiro
-        for (int x = 0; x < 8; x++){
-            for (int z = 0; z < 8; z++){
-                //logica para alterar cores
-                glm::vec3 cor;
-                if((x+z)%2 == 0){
-                    cor = glm::vec3(0.9f, 0.9f, 0.8f); //bege claro
-                }else{
-                    cor = glm::vec3(0.4f, 0.2f, 0.1f); //marrom escuro
-                }
-                glUniform3f(corLoc, cor.r, cor.g, cor.b);
-                
-                //calculo da matriz Model, utilizando x e z para transladar. y = o, já que o tabuleiro está no plano XZ
-                glm::mat4 model = glm::mat4(1.0f);
-                model = glm::translate(model, glm::vec3(x, 0.0f, z));
-                model = glm::scale(model, glm::vec3(1.0f, 0.2f, 1.0f)); //achata os cubos
-                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-            }
-            
-        }
-        
-        glUniform3f(corLoc, 0.3f, 0.15f, 0.05f); // Cor sólida para a madeira
-
-        glm::mat4 modelBorda;
-
-        // Borda Esquerda (Esticada no eixo Z)
-        modelBorda = glm::mat4(1.0f);
-        modelBorda = glm::translate(modelBorda, glm::vec3(-0.5f, 0.0f, -0.5f)); 
-        modelBorda = glm::scale(modelBorda, glm::vec3(0.5f, 0.25f, 9.0f));       
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBorda));
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        // Borda Direita (Esticada no eixo Z)
-        modelBorda = glm::mat4(1.0f);
-        modelBorda = glm::translate(modelBorda, glm::vec3(8.0f, 0.0f, -0.5f));
-        modelBorda = glm::scale(modelBorda, glm::vec3(0.5f, 0.25f, 9.0f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBorda));
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        // Borda Fundo / Superior (Esticada no eixo X)
-        modelBorda = glm::mat4(1.0f);
-        modelBorda = glm::translate(modelBorda, glm::vec3(0.0f, 0.0f, -0.5f));
-        modelBorda = glm::scale(modelBorda, glm::vec3(8.0f, 0.25f, 0.5f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBorda));
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        // Borda Frente / Inferior (Esticada no eixo X)
-        modelBorda = glm::mat4(1.0f);
-        modelBorda = glm::translate(modelBorda, glm::vec3(0.0f, 0.0f, 8.0f));
-        modelBorda = glm::scale(modelBorda, glm::vec3(8.0f, 0.25f, 0.5f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBorda));
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        DrawBoard(modelLoc, corLoc, shaderProgram);
 
 
         //desenho peao teste
         glBindVertexArray(VAO_Peao);
-        glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
-        for (int i = 0; i < 8; i++){
-            glm::mat4 modelPeao = glm::mat4(1.0f);
-            
-            modelPeao = glm::translate(modelPeao, glm::vec3((float)i+0.5f, 0.2f, 6.5f));
-            modelPeao = glm::scale(modelPeao, glm::vec3(0.6f, 0.6f, 0.6f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelPeao));
-            glDrawArrays(GL_TRIANGLES, 0, verticesPeao.size()/3);
-        }
-
-        glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
-        for (int i = 0; i < 8; i++){
-            glm::mat4 modelPeao = glm::mat4(1.0f);
-            
-            modelPeao = glm::translate(modelPeao, glm::vec3((float)i+0.5f, 0.2f, 1.5f));
-            modelPeao = glm::scale(modelPeao, glm::vec3(0.6f, 0.6f, 0.6f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelPeao));
-            glDrawArrays(GL_TRIANGLES, 0, verticesPeao.size()/3);
-        }
         
+        DrawPawn(modelLoc, corLoc, shaderProgram, verticesPeao.size());
 
 
         //troca os buffers e verifica eventos do sistema (mouse, teclado)
