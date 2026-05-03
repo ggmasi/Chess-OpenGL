@@ -181,6 +181,29 @@ bool DrawPawn(int modelLoc, int corLoc, int shaderProgram, int tam){
     return true;
 }
 
+bool DrawRook(int modelLoc, int corLoc, int shaderProgram, int tam){
+    
+    glUniform3f(corLoc, 0.95f, 0.95f, 0.85f);
+    for (int i : {0, 7}){
+        glm::mat4 modelTorre = glm::mat4(1.0f);
+        modelTorre = glm::translate(modelTorre, glm::vec3((float)i+0.5f, 0.2f, 7.5f));
+        modelTorre = glm::scale(modelTorre, glm::vec3(0.6f, 0.6f, 0.6f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelTorre));
+        glDrawArrays(GL_TRIANGLES, 0, tam/3);
+    }
+
+    glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
+    for (int i : {0, 7}){
+        glm::mat4 modelTorre = glm::mat4(1.0f);
+        modelTorre = glm::translate(modelTorre, glm::vec3((float)i+0.5f, 0.2f, 0.5f));
+        modelTorre = glm::scale(modelTorre, glm::vec3(0.6f, 0.6f, 0.6f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelTorre));
+        glDrawArrays(GL_TRIANGLES, 0, tam/3);
+    }
+
+    return true;
+}
+
 int main() {
 
     
@@ -335,10 +358,14 @@ int main() {
     unsigned int VAO_Peao, VBO_Peao;
     SetupGPUModel(verticesPeao.data(), verticesPeao.size()*sizeof(float), VAO_Peao, VBO_Peao);
 
+    vector<float> verticesTorre;
+    LoadOBJ("models/rook.obj", verticesTorre);
+    unsigned int VAO_Torre, VBO_Torre;
+    SetupGPUModel(verticesTorre.data(), verticesTorre.size()*sizeof(float), VAO_Torre, VBO_Torre);
 
 
-    
-    
+
+
 
 
     glEnable(GL_DEPTH_TEST);
@@ -397,8 +424,9 @@ int main() {
         glBindVertexArray(VAO_Peao);
         DrawPawn(modelLoc, corLoc, shaderProgram, verticesPeao.size());
 
-        
-
+        //desenho das torres
+        glBindVertexArray(VAO_Torre);        
+        DrawRook(modelLoc, corLoc, shaderProgram, verticesTorre.size());
 
         //troca os buffers e verifica eventos do sistema (mouse, teclado)
         glfwSwapBuffers(window);
