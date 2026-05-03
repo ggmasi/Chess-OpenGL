@@ -234,6 +234,28 @@ bool DrawRook(int modelLoc, int corLoc, int shaderProgram, int tam){
     return true;
 }
 
+bool DrawQueen(int modelLoc, int corLoc, int shaderProgram, int tam){
+    //dama branca
+    glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
+
+    glm::mat4 modelDama = glm::mat4(1.0f);
+    modelDama = glm::translate(modelDama, glm::vec3(3.5f, 0.2f, 7.5f));
+    modelDama = glm::scale(modelDama, glm::vec3(1.5f, 1.5f, 1.5f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelDama));
+    glDrawArrays(GL_TRIANGLES, 0, tam/3);
+
+    //dama preta
+    glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
+
+    modelDama = glm::mat4(1.0f);
+    modelDama = glm::translate(modelDama, glm::vec3(3.5f, 0.2f, 0.5f));
+    modelDama = glm::scale(modelDama, glm::vec3(1.5f, 1.5f, 1.5f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelDama));
+    glDrawArrays(GL_TRIANGLES, 0, tam/3);
+
+    return true;
+}
+
 int main() {
 
     
@@ -392,12 +414,16 @@ int main() {
     LoadOBJ("models/bishop.obj", verticesBispo);
     unsigned int VAO_Bispo, VBO_Bispo;
     SetupGPUModel(verticesBispo.data(), verticesBispo.size()*sizeof(float), VAO_Bispo, VBO_Bispo);
+
     vector<float> verticesTorre;
     LoadOBJ("models/rook.obj", verticesTorre);
     unsigned int VAO_Torre, VBO_Torre;
     SetupGPUModel(verticesTorre.data(), verticesTorre.size()*sizeof(float), VAO_Torre, VBO_Torre);
 
-
+    vector<float> verticesDama;
+    LoadOBJ("models/queen.obj", verticesDama);
+    unsigned int VAO_Dama, VBO_Dama;
+    SetupGPUModel(verticesDama.data(), verticesDama.size()*sizeof(float), VAO_Dama, VBO_Dama);
 
 
 
@@ -462,11 +488,13 @@ int main() {
         glBindVertexArray(VAO_Bispo);
         DrawBishop(modelLoc, corLoc, shaderProgram, verticesBispo.size());
 
-        
-
         //desenho das torres
         glBindVertexArray(VAO_Torre);        
         DrawRook(modelLoc, corLoc, shaderProgram, verticesTorre.size());
+
+        //desenho das damas
+        glBindVertexArray(VAO_Dama);
+        DrawQueen(modelLoc, corLoc, shaderProgram, verticesDama.size());
 
         //troca os buffers e verifica eventos do sistema (mouse, teclado)
         glfwSwapBuffers(window);
