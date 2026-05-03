@@ -42,30 +42,33 @@ bool LoadOBJ(const char* path, vector<float>& outVertices){
     while(getline(arquivo, linha)){
         istringstream iss(linha);
         string tipo;
-        iss >> tipo; //le a primeira palavra da linha 
+        iss >> tipo;
 
-        if(tipo == "v"){ // se for um vertice
+        if(tipo == "v"){
             glm::vec3 vertice;
             iss >> vertice.x >> vertice.y >> vertice.z;
             verticesTemporarios.push_back(vertice);
-        }else if(tipo == "f"){ //se for uma face
-            int i1, i2, i3;
-            iss >> i1 >> i2 >> i3;
+        } else if(tipo == "f"){
+            // lê até 4 tokens (suporta triângulos e quads)
+            vector<int> indices;
+            string token;
+            while(iss >> token){
+                // pega só o primeiro número antes de '/' (ex: "3/1/2" → 3)
+                int idx = stoi(token.substr(0, token.find('/')));
+                indices.push_back(idx - 1); // converte para index 0
+            }
 
-            i1--; i2--; i3--; //converte para index 0
-
-            //adiciona os 3 pontos do triangulo
-            outVertices.push_back(verticesTemporarios[i1].x);
-            outVertices.push_back(verticesTemporarios[i1].y);
-            outVertices.push_back(verticesTemporarios[i1].z);
-
-            outVertices.push_back(verticesTemporarios[i2].x);
-            outVertices.push_back(verticesTemporarios[i2].y);
-            outVertices.push_back(verticesTemporarios[i2].z);
-
-            outVertices.push_back(verticesTemporarios[i3].x);
-            outVertices.push_back(verticesTemporarios[i3].y);
-            outVertices.push_back(verticesTemporarios[i3].z);
+            // triangula: funciona para triângulos (3) e quads (4)
+            for(int i = 1; i + 1 < (int)indices.size(); i++){
+                auto push = [&](int i){
+                    outVertices.push_back(verticesTemporarios[i].x);
+                    outVertices.push_back(verticesTemporarios[i].y);
+                    outVertices.push_back(verticesTemporarios[i].z);
+                };
+                push(indices[0]);
+                push(indices[i]);
+                push(indices[i+1]);
+            }
         }
     }
 
@@ -235,7 +238,7 @@ int main() {
 
 
     vector<float> verticesPeao;
-    LoadOBJ("models/peao_teste.obj", verticesPeao);
+    LoadOBJ("models/pawn.obj", verticesPeao);
 
     unsigned int VAO_Peao, VBO_Peao;
     glGenVertexArrays(1, &VAO_Peao);
