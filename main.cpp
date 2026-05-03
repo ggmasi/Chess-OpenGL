@@ -29,6 +29,27 @@ string ReadShaderFile(const char* filePath){
     return buffer.str();
 }
 
+//função para criar o VBO e VAO
+//VBO: estrutura para armazenar grande números de vértices na memória da GPU (vertex buffer object)
+//VAO: estrutura que indica à GPU como o VBO está estruturado
+void SetupGPUModel(float* vertices, size_t tam, unsigned int& VAO, unsigned int& VBO){
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO); //para qualquer atualização no GL_ARRAY_BUFFER, será atualizado o VBO
+
+    glBufferData(GL_ARRAY_BUFFER, tam, vertices, GL_STATIC_DRAW); //copia os valores de "vertices[]" para o VBO
+
+    //instruções para a GPU conseguir ler o VBO corretamente
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    //desconexão para evitar que codigos futuros alterem o VAO/VBO acidentalmente
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
 bool LoadOBJ(const char* path, vector<float>& outVertices){
     vector<glm::vec3> verticesTemporarios;
 
@@ -302,42 +323,22 @@ int main() {
         0.0f, 1.0f, 0.0f
     };
 
-    //estruturas para desenhar o tabuleiro
-    //criação da estrutura para armazenar grande números de vértices na memória da GPU (vertex buffer object)
+    //estruturas para desenhar os objetos
     unsigned int VBO_Tabuleiro;
-    glGenBuffers(1, &VBO_Tabuleiro);
-    //criação da estrutura que indica à GPU como o VBO está estruturado
     unsigned int VAO_Tabuleiro;
-    glGenVertexArrays(1, &VAO_Tabuleiro);
-    glBindVertexArray(VAO_Tabuleiro);
-    //para qualquer atualização no GL_ARRAY_BUFFER, será atualizado o VBO
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_Tabuleiro);
-    //copia os valores de "vertices[]" para o VBO
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verticesCubo), verticesCubo, GL_STATIC_DRAW);
-    //instruções para a GPU conseguir ler o VBO corretamente
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    SetupGPUModel(verticesCubo, sizeof(verticesCubo), VAO_Tabuleiro, VBO_Tabuleiro);
     
-
-
-
+   
+   
     vector<float> verticesPeao;
     LoadOBJ("models/pawn.obj", verticesPeao);
-
     unsigned int VAO_Peao, VBO_Peao;
-    glGenVertexArrays(1, &VAO_Peao);
-    glGenBuffers(1, &VBO_Peao);
-    glBindVertexArray(VAO_Peao);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_Peao);
-    glBufferData(GL_ARRAY_BUFFER, verticesPeao.size() * sizeof(float), verticesPeao.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    SetupGPUModel(verticesPeao.data(), verticesPeao.size()*sizeof(float), VAO_Peao, VBO_Peao);
 
 
 
-    //desconexão para evitar que codigos futuros alterem o VAO/VBO acidentalmente
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    
+    
 
 
     glEnable(GL_DEPTH_TEST);
@@ -392,10 +393,11 @@ int main() {
         DrawBoard(modelLoc, corLoc, shaderProgram);
 
 
-        //desenho peao teste
+        //desenho dos peões
         glBindVertexArray(VAO_Peao);
-        
         DrawPawn(modelLoc, corLoc, shaderProgram, verticesPeao.size());
+
+        
 
 
         //troca os buffers e verifica eventos do sistema (mouse, teclado)
