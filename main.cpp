@@ -183,11 +183,11 @@ bool DrawPawn(int modelLoc, int corLoc, int shaderProgram, int tam){
 
 bool DrawRook(int modelLoc, int corLoc, int shaderProgram, int tam){
     
-    glUniform3f(corLoc, 0.95f, 0.95f, 0.85f);
+    glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
     for (int i : {0, 7}){
         glm::mat4 modelTorre = glm::mat4(1.0f);
         modelTorre = glm::translate(modelTorre, glm::vec3((float)i+0.5f, 0.2f, 7.5f));
-        modelTorre = glm::scale(modelTorre, glm::vec3(0.6f, 0.6f, 0.6f));
+        modelTorre = glm::scale(modelTorre, glm::vec3(1.0f, 1.0f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelTorre));
         glDrawArrays(GL_TRIANGLES, 0, tam/3);
     }
@@ -196,7 +196,7 @@ bool DrawRook(int modelLoc, int corLoc, int shaderProgram, int tam){
     for (int i : {0, 7}){
         glm::mat4 modelTorre = glm::mat4(1.0f);
         modelTorre = glm::translate(modelTorre, glm::vec3((float)i+0.5f, 0.2f, 0.5f));
-        modelTorre = glm::scale(modelTorre, glm::vec3(0.6f, 0.6f, 0.6f));
+        modelTorre = glm::scale(modelTorre, glm::vec3(1.0f, 1.0f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelTorre));
         glDrawArrays(GL_TRIANGLES, 0, tam/3);
     }
