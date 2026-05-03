@@ -32,6 +32,7 @@ void main(){
     vec3 corBrilho = mix(vec3(1.0), corLuz, 0.5);
     vec3 specular = brilhoMaterial * spec * corBrilho;
 
-    vec3 resultado = (ambient+diffuse+specular)*corCasa;
+    vec3 luzCamera = max(dot(norm, viewDir), 0.0)*vec3(0.2, 0.2, 0.2);
+    vec3 resultado = (ambient+diffuse+specular+luzCamera)*corCasa;
     FragColor = vec4(resultado, 1.0);
 }

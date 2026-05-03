@@ -333,14 +333,14 @@ bool DrawQueen(int modelLoc, int corLoc, int shaderProgram, int tam){
         modelRei = glm::translate(modelRei, glm::vec3(4.5f, 0.2f, 7.5f));
         modelRei = glm::scale(modelRei, glm::vec3(1.5f, 1.5f, 1.5f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelRei));
-        glDrawArrays(GL_TRIANGLES, 0, tam / 3);
+        glDrawArrays(GL_TRIANGLES, 0, tam / 6);
 
         glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
         modelRei = glm::mat4(1.0f);
         modelRei = glm::translate(modelRei, glm::vec3(4.5f, 0.2f, 0.5f));
         modelRei = glm::scale(modelRei, glm::vec3(1.5f, 1.5f, 1.5f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelRei));
-        glDrawArrays(GL_TRIANGLES, 0, tam / 3);
+        glDrawArrays(GL_TRIANGLES, 0, tam / 6);
 
         return true;
     }
@@ -358,6 +358,9 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    //adicao de anti aliasing
+    glfwWindowHint(GLFW_SAMPLES, 4);
 
     //cria a janela
     GLFWwindow* window = glfwCreateWindow(800, 600, "Chess 3D", NULL, NULL);
@@ -524,6 +527,7 @@ int main() {
 
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
 
     bool cameraBrancas = true;
     bool teclaCApertada = false;
@@ -587,7 +591,7 @@ int main() {
         int corLoc = glGetUniformLocation(shaderProgram, "corCasa");
 
         int ligthPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
-        glUniform3f(ligthPosLoc, 4.0f, 3.0f, 4.0f);
+        glUniform3f(ligthPosLoc, 4.0f, 10.0f, 4.0f);
 
         int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");
         if(cameraBrancas){
@@ -603,7 +607,8 @@ int main() {
         glBindVertexArray(VAO_Tabuleiro);
         DrawBoard(modelLoc, corLoc, shaderProgram);
 
-        glUniform1d(brilhoLocal, 0.6f);
+        //decide o brilho ao bater a luz no material desenhado
+        glUniform1f(brilhoLocal, 0.6f);
 
         //desenho dos peões
         glBindVertexArray(VAO_Peao);
