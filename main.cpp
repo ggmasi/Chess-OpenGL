@@ -181,6 +181,7 @@ bool DrawPawn(int modelLoc, int corLoc, int shaderProgram, int tam){
     return true;
 }
 
+<<<<<<< HEAD
 bool DrawBishop(int modelLoc, int corLoc, int shaderProgram, int tam){
     //bispos brancos
     glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
@@ -207,6 +208,27 @@ bool DrawBishop(int modelLoc, int corLoc, int shaderProgram, int tam){
     modelBispo = glm::translate(modelBispo, glm::vec3(5.5f, 0.2f, 0.5f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
     glDrawArrays(GL_TRIANGLES, 0, tam/3);
+=======
+bool DrawRook(int modelLoc, int corLoc, int shaderProgram, int tam){
+    
+    glUniform3f(corLoc, 0.95f, 0.95f, 0.85f);
+    for (int i : {0, 7}){
+        glm::mat4 modelTorre = glm::mat4(1.0f);
+        modelTorre = glm::translate(modelTorre, glm::vec3((float)i+0.5f, 0.2f, 7.5f));
+        modelTorre = glm::scale(modelTorre, glm::vec3(0.6f, 0.6f, 0.6f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelTorre));
+        glDrawArrays(GL_TRIANGLES, 0, tam/3);
+    }
+
+    glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
+    for (int i : {0, 7}){
+        glm::mat4 modelTorre = glm::mat4(1.0f);
+        modelTorre = glm::translate(modelTorre, glm::vec3((float)i+0.5f, 0.2f, 0.5f));
+        modelTorre = glm::scale(modelTorre, glm::vec3(0.6f, 0.6f, 0.6f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelTorre));
+        glDrawArrays(GL_TRIANGLES, 0, tam/3);
+    }
+>>>>>>> ecb278f00ab156ee31d51d913efcf067511ad02d
 
     return true;
 }
@@ -365,15 +387,21 @@ int main() {
     unsigned int VAO_Peao, VBO_Peao;
     SetupGPUModel(verticesPeao.data(), verticesPeao.size()*sizeof(float), VAO_Peao, VBO_Peao);
 
+<<<<<<< HEAD
     vector<float> verticesBispo;
     LoadOBJ("models/bishop.obj", verticesBispo);
     unsigned int VAO_Bispo, VBO_Bispo;
     SetupGPUModel(verticesBispo.data(), verticesBispo.size()*sizeof(float), VAO_Bispo, VBO_Bispo);
+=======
+    vector<float> verticesTorre;
+    LoadOBJ("models/rook.obj", verticesTorre);
+    unsigned int VAO_Torre, VBO_Torre;
+    SetupGPUModel(verticesTorre.data(), verticesTorre.size()*sizeof(float), VAO_Torre, VBO_Torre);
+
+>>>>>>> ecb278f00ab156ee31d51d913efcf067511ad02d
 
 
 
-    
-    
 
 
     glEnable(GL_DEPTH_TEST);
@@ -432,12 +460,18 @@ int main() {
         glBindVertexArray(VAO_Peao);
         DrawPawn(modelLoc, corLoc, shaderProgram, verticesPeao.size());
 
+<<<<<<< HEAD
         //desenho dos bispos
         glBindVertexArray(VAO_Bispo);
         DrawBishop(modelLoc, corLoc, shaderProgram, verticesBispo.size());
 
         
 
+=======
+        //desenho das torres
+        glBindVertexArray(VAO_Torre);        
+        DrawRook(modelLoc, corLoc, shaderProgram, verticesTorre.size());
+>>>>>>> ecb278f00ab156ee31d51d913efcf067511ad02d
 
         //troca os buffers e verifica eventos do sistema (mouse, teclado)
         glfwSwapBuffers(window);
