@@ -1,3 +1,5 @@
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 //biblioteca que carrega funções modernas do OpenGL
 #include <GL/glew.h>
 //biblioteca para criar a janela de visualização
@@ -13,6 +15,31 @@
 #include <vector>
 
 using namespace std;
+
+unsigned int CarregarTextura(const char* caminho) {
+    unsigned int texID;
+    glGenTextures(1, &texID);
+    glBindTexture(GL_TEXTURE_2D, texID);
+
+    // comportamento nas bordas e filtragem
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int largura, altura, canais;
+    stbi_set_flip_vertically_on_load(true); // OpenGL lê de baixo para cima
+    unsigned char* dados = stbi_load(caminho, &largura, &altura, &canais, 0);
+    if (dados) {
+        GLenum formato = (canais == 4) ? GL_RGBA : GL_RGB;
+        glTexImage2D(GL_TEXTURE_2D, 0, formato, largura, altura, 0, formato, GL_UNSIGNED_BYTE, dados);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        cerr << "Falha ao carregar textura: " << caminho << endl;
+    }
+    stbi_image_free(dados);
+    return texID;
+}
 
 //função para ler o arquivo vertex_shader.gsls
 string ReadShaderFile(const char* filePath){
@@ -59,13 +86,10 @@ bool LoadOBJ(const char* path, vector<float>& outVertices){
     vector<glm::vec3> normaisTemporarias;
 
     ifstream arquivo(path);
-    if(!arquivo.is_open()){
-        cerr << "Falha ao abrir o modelo: " << path << endl;
-        return false;
-    }
+    if (!arquivo.is_open()) { cerr << "Falha ao abrir: " << path << endl; return false; }
 
     string linha;
-    while(getline(arquivo, linha)){
+    while (getline(arquivo, linha)) {
         istringstream iss(linha);
         string tipo;
         iss >> tipo;
@@ -159,11 +183,27 @@ bool LoadOBJ(const char* path, vector<float>& outVertices){
             }
         }
     }
-
-    arquivo.close();
     return true;
 }
 
+void SetupGPUModelUV(float* vertices, size_t tam, unsigned int& VAO, unsigned int& VBO) {
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, tam, vertices, GL_STATIC_DRAW);
+
+    // atributo 0: posição (xyz)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // atributo 1: UV (uv)
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
 
 bool DrawBoard(int modelLoc, int corLoc, int shaderProgram){
 
@@ -500,7 +540,8 @@ int main() {
     vector<float> verticesPeao;
     LoadOBJ("models/pawn.obj", verticesPeao);
     unsigned int VAO_Peao, VBO_Peao;
-    SetupGPUModel(verticesPeao.data(), verticesPeao.size()*sizeof(float), VAO_Peao, VBO_Peao);
+    SetupGPUModelUV(verticesPeao.data(), verticesPeao.size()*sizeof(float), VAO_Peao, VBO_Peao);
+    unsigned int texturaPeao = CarregarTextura("textures/glass.png");
 
     vector<float> verticesBispo;
     LoadOBJ("models/bishop.obj", verticesBispo);
@@ -637,7 +678,10 @@ int main() {
 
     //limpa a memória e fecha
     glDeleteBuffers(1, &VBO_Tabuleiro);
+    glDeleteBuffers(1, &VBO_Peao);
     glDeleteBuffers(1, &VBO_Bispo);
+    glDeleteBuffers(1, &VBO_Torre);
+    glDeleteTextures(1, &texturaPeao);
     glDeleteProgram(shaderProgram);
     glfwTerminate();
     return 0;

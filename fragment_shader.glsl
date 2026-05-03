@@ -35,4 +35,9 @@ void main(){
     vec3 luzCamera = max(dot(norm, viewDir), 0.0)*vec3(0.2, 0.2, 0.2);
     vec3 resultado = (ambient+diffuse+specular+luzCamera)*corCasa;
     FragColor = vec4(resultado, 1.0);
+    
+    if (usarTextura)
+        FragColor = texture(textura, TexCoord);
+    else
+        FragColor = vec4(corCasa, 1.0);
 }
