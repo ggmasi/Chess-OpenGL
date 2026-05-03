@@ -11,6 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <cmath>
 
 using namespace std;
 
@@ -327,23 +328,23 @@ bool DrawQueen(int modelLoc, int corLoc, int shaderProgram, int tam){
     return true;
 }
 
-    bool DrawKing(int modelLoc, int corLoc, int shaderProgram, int tam){
-        glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
-        glm::mat4 modelRei = glm::mat4(1.0f);
-        modelRei = glm::translate(modelRei, glm::vec3(4.5f, 0.2f, 7.5f));
-        modelRei = glm::scale(modelRei, glm::vec3(1.5f, 1.5f, 1.5f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelRei));
-        glDrawArrays(GL_TRIANGLES, 0, tam / 6);
+bool DrawKing(int modelLoc, int corLoc, int shaderProgram, int tam){
+    glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
+    glm::mat4 modelRei = glm::mat4(1.0f);
+    modelRei = glm::translate(modelRei, glm::vec3(4.5f, 0.2f, 7.5f));
+    modelRei = glm::scale(modelRei, glm::vec3(1.5f, 1.5f, 1.5f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelRei));
+    glDrawArrays(GL_TRIANGLES, 0, tam / 6);
 
-        glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
-        modelRei = glm::mat4(1.0f);
-        modelRei = glm::translate(modelRei, glm::vec3(4.5f, 0.2f, 0.5f));
-        modelRei = glm::scale(modelRei, glm::vec3(1.5f, 1.5f, 1.5f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelRei));
-        glDrawArrays(GL_TRIANGLES, 0, tam / 6);
+    glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
+    modelRei = glm::mat4(1.0f);
+    modelRei = glm::translate(modelRei, glm::vec3(4.5f, 0.2f, 0.5f));
+    modelRei = glm::scale(modelRei, glm::vec3(1.5f, 1.5f, 1.5f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelRei));
+    glDrawArrays(GL_TRIANGLES, 0, tam / 6);
 
-        return true;
-    }
+    return true;
+}
 
 int main() {
 
@@ -532,13 +533,32 @@ int main() {
     bool cameraBrancas = true;
     bool teclaCApertada = false;
 
+    float deltaTime = 0.0f; //tempo entre o frame atual e o último frame
+    float lastFrame = 0.0f; //tempo do último frame
+
+    //posicao inicial (90 graus)
+    float anguloAtual = 3.14159f / 2.0f;
+    float anguloAlvo = 3.14159f / 2.0f;
+
+    //raio do circulo que a camera vai fazer
+    float raioCamera = 10.0f;
+
     //o loop de renderização (Roda até a janela ser fechada)
     while (!glfwWindowShouldClose(window)) {
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame-lastFrame;
+        lastFrame = currentFrame;
+
         //entrada (ex: se apertar ESC, fecha a janela)
         if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
         if(glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && !teclaCApertada){
             cameraBrancas = !cameraBrancas;
+            if(cameraBrancas){
+                anguloAlvo = 3.14159f / 2.0f;
+            }else{
+                anguloAlvo = -3.14159f / 2.0f;
+            }
             teclaCApertada = true;
         }
         if(glfwGetKey(window, GLFW_KEY_C) == GLFW_RELEASE){
@@ -568,21 +588,17 @@ int main() {
         int projecaoLoc = glGetUniformLocation(shaderProgram, "projecao");
         glUniformMatrix4fv(projecaoLoc, 1, GL_FALSE, glm::value_ptr(projecao));
 
+        anguloAtual = anguloAtual + (anguloAlvo-anguloAtual)*1.5f*deltaTime;
+
         //cria e envia uma matriz de câmera
-        glm::mat4 view;
-        if(cameraBrancas){
-            view = glm::lookAt(
-                glm::vec3(4.0f, 8.0f, 14.0f), //olho atrás das brancas
-                glm::vec3(4.0f, 0.0f, 4.0f),  //centro do tabuleiro
-                glm::vec3(0.0f, 1.0f, 0.0f)   //vetor para cima
-            );
-        } else {
-            view = glm::lookAt(
-                glm::vec3(4.0f, 8.0f, -6.0f), //olho atrás das pretas
-                glm::vec3(4.0f, 0.0f, 4.0f),  //centro do tabuleiro
-                glm::vec3(0.0f, 1.0f, 0.0f)   //vetor para cima
-            );
-        }
+        float camX = 4.0f + cos(anguloAtual)*raioCamera;
+        float camZ = 4.0f + sin(anguloAtual)*raioCamera;
+        
+        glm::mat4 view = glm::lookAt(
+            glm::vec3(camX, 8.0f, camZ), //olho atrás das brancas
+            glm::vec3(4.0f, 0.0f, 4.0f),  //centro do tabuleiro
+            glm::vec3(0.0f, 1.0f, 0.0f)   //vetor para cima
+        );;
         int viewLoc = glGetUniformLocation(shaderProgram, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
@@ -594,11 +610,7 @@ int main() {
         glUniform3f(ligthPosLoc, 4.0f, 10.0f, 4.0f);
 
         int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");
-        if(cameraBrancas){
-            glUniform3f(viewPosLoc, 4.0f, 8.0f, 14.0f);
-        }else{
-            glUniform3f(viewPosLoc, 4.0f, 8.0f, -6.0f);
-        }
+        glUniform3f(viewPosLoc, camX, 8.0f, camZ);
 
 
         //desenha o tabuleiro
