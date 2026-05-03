@@ -187,11 +187,13 @@ bool DrawBishop(int modelLoc, int corLoc, int shaderProgram, int tam){
 
     glm::mat4 modelBispo = glm::mat4(1.0f);
     modelBispo = glm::translate(modelBispo, glm::vec3(2.5f, 0.2f, 7.5f));
+    modelBispo = glm::scale(modelBispo, glm::vec3(1.35f, 1.35f, 1.35f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
     glDrawArrays(GL_TRIANGLES, 0, tam/3);
 
     modelBispo = glm::mat4(1.0f);
     modelBispo = glm::translate(modelBispo, glm::vec3(5.5f, 0.2f, 7.5f));
+    modelBispo = glm::scale(modelBispo, glm::vec3(1.35f, 1.35f, 1.35f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
     glDrawArrays(GL_TRIANGLES, 0, tam/3);
 
@@ -200,11 +202,13 @@ bool DrawBishop(int modelLoc, int corLoc, int shaderProgram, int tam){
 
     modelBispo = glm::mat4(1.0f);
     modelBispo = glm::translate(modelBispo, glm::vec3(2.5f, 0.2f, 0.5f));
+    modelBispo = glm::scale(modelBispo, glm::vec3(1.35f, 1.35f, 1.35f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
     glDrawArrays(GL_TRIANGLES, 0, tam/3);
 
     modelBispo = glm::mat4(1.0f);
     modelBispo = glm::translate(modelBispo, glm::vec3(5.5f, 0.2f, 0.5f));
+    modelBispo = glm::scale(modelBispo, glm::vec3(1.35f, 1.35f, 1.35f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
     glDrawArrays(GL_TRIANGLES, 0, tam/3);
 
@@ -217,7 +221,7 @@ bool DrawRook(int modelLoc, int corLoc, int shaderProgram, int tam){
     for (int i : {0, 7}){
         glm::mat4 modelTorre = glm::mat4(1.0f);
         modelTorre = glm::translate(modelTorre, glm::vec3((float)i+0.5f, 0.2f, 7.5f));
-        modelTorre = glm::scale(modelTorre, glm::vec3(1.0f, 1.0f, 1.0f));
+        modelTorre = glm::scale(modelTorre, glm::vec3(1.15f, 1.15f, 1.15f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelTorre));
         glDrawArrays(GL_TRIANGLES, 0, tam/3);
     }
@@ -226,7 +230,7 @@ bool DrawRook(int modelLoc, int corLoc, int shaderProgram, int tam){
     for (int i : {0, 7}){
         glm::mat4 modelTorre = glm::mat4(1.0f);
         modelTorre = glm::translate(modelTorre, glm::vec3((float)i+0.5f, 0.2f, 0.5f));
-        modelTorre = glm::scale(modelTorre, glm::vec3(1.0f, 1.0f, 1.0f));
+        modelTorre = glm::scale(modelTorre, glm::vec3(1.15f, 1.15f, 1.15f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelTorre));
         glDrawArrays(GL_TRIANGLES, 0, tam/3);
     }
