@@ -260,6 +260,24 @@ bool DrawQueen(int modelLoc, int corLoc, int shaderProgram, int tam){
     return true;
 }
 
+    bool DrawKing(int modelLoc, int corLoc, int shaderProgram, int tam){
+        glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
+        glm::mat4 modelRei = glm::mat4(1.0f);
+        modelRei = glm::translate(modelRei, glm::vec3(4.5f, 0.2f, 7.5f));
+        modelRei = glm::scale(modelRei, glm::vec3(1.5f, 1.5f, 1.5f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelRei));
+        glDrawArrays(GL_TRIANGLES, 0, tam / 3);
+
+        glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
+        modelRei = glm::mat4(1.0f);
+        modelRei = glm::translate(modelRei, glm::vec3(4.5f, 0.2f, 0.5f));
+        modelRei = glm::scale(modelRei, glm::vec3(1.5f, 1.5f, 1.5f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelRei));
+        glDrawArrays(GL_TRIANGLES, 0, tam / 3);
+
+        return true;
+    }
+
 int main() {
 
     
@@ -429,6 +447,12 @@ int main() {
     unsigned int VAO_Dama, VBO_Dama;
     SetupGPUModel(verticesDama.data(), verticesDama.size()*sizeof(float), VAO_Dama, VBO_Dama);
 
+    vector<float> verticesRei;
+    LoadOBJ("models/king.obj", verticesRei);
+    unsigned int VAO_Rei, VBO_Rei;
+    SetupGPUModel(verticesRei.data(), verticesRei.size() * sizeof(float), VAO_Rei, VBO_Rei);
+
+
 
 
 
@@ -516,6 +540,10 @@ int main() {
         //desenho das damas
         glBindVertexArray(VAO_Dama);
         DrawQueen(modelLoc, corLoc, shaderProgram, verticesDama.size());
+
+        //desenho dos reis
+        glBindVertexArray(VAO_Rei);
+        DrawKing(modelLoc, corLoc, shaderProgram, verticesRei.size());
 
         //troca os buffers e verifica eventos do sistema (mouse, teclado)
         glfwSwapBuffers(window);
