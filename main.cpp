@@ -181,6 +181,36 @@ bool DrawPawn(int modelLoc, int corLoc, int shaderProgram, int tam){
     return true;
 }
 
+bool DrawBishop(int modelLoc, int corLoc, int shaderProgram, int tam){
+    //bispos brancos
+    glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
+
+    glm::mat4 modelBispo = glm::mat4(1.0f);
+    modelBispo = glm::translate(modelBispo, glm::vec3(2.5f, 0.2f, 7.5f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
+    glDrawArrays(GL_TRIANGLES, 0, tam/3);
+
+    modelBispo = glm::mat4(1.0f);
+    modelBispo = glm::translate(modelBispo, glm::vec3(5.5f, 0.2f, 7.5f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
+    glDrawArrays(GL_TRIANGLES, 0, tam/3);
+
+    //bispos pretos
+    glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
+
+    modelBispo = glm::mat4(1.0f);
+    modelBispo = glm::translate(modelBispo, glm::vec3(2.5f, 0.2f, 0.5f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
+    glDrawArrays(GL_TRIANGLES, 0, tam/3);
+
+    modelBispo = glm::mat4(1.0f);
+    modelBispo = glm::translate(modelBispo, glm::vec3(5.5f, 0.2f, 0.5f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
+    glDrawArrays(GL_TRIANGLES, 0, tam/3);
+
+    return true;
+}
+
 int main() {
 
     
@@ -335,6 +365,11 @@ int main() {
     unsigned int VAO_Peao, VBO_Peao;
     SetupGPUModel(verticesPeao.data(), verticesPeao.size()*sizeof(float), VAO_Peao, VBO_Peao);
 
+    vector<float> verticesBispo;
+    LoadOBJ("models/bishop.obj", verticesBispo);
+    unsigned int VAO_Bispo, VBO_Bispo;
+    SetupGPUModel(verticesBispo.data(), verticesBispo.size()*sizeof(float), VAO_Bispo, VBO_Bispo);
+
 
 
     
@@ -397,6 +432,10 @@ int main() {
         glBindVertexArray(VAO_Peao);
         DrawPawn(modelLoc, corLoc, shaderProgram, verticesPeao.size());
 
+        //desenho dos bispos
+        glBindVertexArray(VAO_Bispo);
+        DrawBishop(modelLoc, corLoc, shaderProgram, verticesBispo.size());
+
         
 
 
@@ -407,6 +446,7 @@ int main() {
 
     //limpa a memória e fecha
     glDeleteBuffers(1, &VBO_Tabuleiro);
+    glDeleteBuffers(1, &VBO_Bispo);
     glDeleteProgram(shaderProgram);
     glfwTerminate();
     return 0;
