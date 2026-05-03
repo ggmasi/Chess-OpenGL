@@ -42,16 +42,21 @@ void SetupGPUModel(float* vertices, size_t tam, unsigned int& VAO, unsigned int&
     glBufferData(GL_ARRAY_BUFFER, tam, vertices, GL_STATIC_DRAW); //copia os valores de "vertices[]" para o VBO
 
     //instruções para a GPU conseguir ler o VBO corretamente
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+    //lê os vértices
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    //lê as normais
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(3*sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     //desconexão para evitar que codigos futuros alterem o VAO/VBO acidentalmente
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    glBindVertexArray(0);   
 }
 
 bool LoadOBJ(const char* path, vector<float>& outVertices){
     vector<glm::vec3> verticesTemporarios;
+    vector<glm::vec3> normaisTemporarias;
 
     ifstream arquivo(path);
     if(!arquivo.is_open()){
@@ -69,26 +74,88 @@ bool LoadOBJ(const char* path, vector<float>& outVertices){
             glm::vec3 vertice;
             iss >> vertice.x >> vertice.y >> vertice.z;
             verticesTemporarios.push_back(vertice);
+        }else if(tipo == "vn"){
+            glm::vec3 normal;
+            iss >> normal.x >> normal.y >> normal.z;
+            normaisTemporarias.push_back(normal);
         } else if(tipo == "f"){
             // lê até 4 tokens (suporta triângulos e quads)
-            vector<int> indices;
+            vector<int> indicesVertices;
+            vector<int> indicesNormais;
             string token;
             while(iss >> token){
-                // pega só o primeiro número antes de '/' (ex: "3/1/2" → 3)
-                int idx = stoi(token.substr(0, token.find('/')));
-                indices.push_back(idx - 1); // converte para index 0
+                //acha as barras
+                size_t primeiraBarra = token.find('/');
+                size_t segundaBarra = token.find('/', primeiraBarra+1);
+
+                //pega o vertice
+                indicesVertices.push_back(stoi(token.substr(0, primeiraBarra)) - 1);
+
+                //se houver, pega a normal
+                if(segundaBarra != string::npos && segundaBarra + 1 < token.length()){
+                    indicesNormais.push_back(stoi(token.substr(segundaBarra+1))-1);
+                }else{
+                    indicesNormais.push_back(-1);
+                }
             }
 
             // triangula: funciona para triângulos (3) e quads (4)
-            for(int i = 1; i + 1 < (int)indices.size(); i++){
-                auto push = [&](int i){
-                    outVertices.push_back(verticesTemporarios[i].x);
-                    outVertices.push_back(verticesTemporarios[i].y);
-                    outVertices.push_back(verticesTemporarios[i].z);
-                };
-                push(indices[0]);
-                push(indices[i]);
-                push(indices[i+1]);
+            for(int i = 1; i + 1 < (int)indicesVertices.size(); i++){
+                int v1 = indicesVertices[0];
+                int n1 = indicesNormais[0];
+
+                outVertices.push_back(verticesTemporarios[v1].x);
+                outVertices.push_back(verticesTemporarios[v1].y);
+                outVertices.push_back(verticesTemporarios[v1].z);
+               
+                //se existir a normal, coloca-a. Se não, adiciona uma normal apontando para Y
+                if(n1 != -1){
+                    outVertices.push_back(normaisTemporarias[n1].x);
+                    outVertices.push_back(normaisTemporarias[n1].y);
+                    outVertices.push_back(normaisTemporarias[n1].z);
+                }else{
+                    outVertices.push_back(0.0f);
+                    outVertices.push_back(1.0f);
+                    outVertices.push_back(0.0f);
+                }
+
+                int v2 = indicesVertices[i];
+                int n2 = indicesNormais[i];
+
+                outVertices.push_back(verticesTemporarios[v2].x);
+                outVertices.push_back(verticesTemporarios[v2].y);
+                outVertices.push_back(verticesTemporarios[v2].z);
+               
+                //se existir a normal, coloca-a. Se não, adiciona uma normal apontando para Y
+                if(n2 != -1){
+                    outVertices.push_back(normaisTemporarias[n2].x);
+                    outVertices.push_back(normaisTemporarias[n2].y);
+                    outVertices.push_back(normaisTemporarias[n2].z);
+                }else{
+                    outVertices.push_back(0.0f);
+                    outVertices.push_back(1.0f);
+                    outVertices.push_back(0.0f);
+                }
+
+
+                int v3 = indicesVertices[i + 1];
+                int n3 = indicesNormais[i + 1];
+
+                outVertices.push_back(verticesTemporarios[v3].x);
+                outVertices.push_back(verticesTemporarios[v3].y);
+                outVertices.push_back(verticesTemporarios[v3].z);
+               
+                //se existir a normal, coloca-a. Se não, adiciona uma normal apontando para Y
+                if(n3 != -1){
+                    outVertices.push_back(normaisTemporarias[n3].x);
+                    outVertices.push_back(normaisTemporarias[n3].y);
+                    outVertices.push_back(normaisTemporarias[n3].z);
+                }else{
+                    outVertices.push_back(0.0f);
+                    outVertices.push_back(1.0f);
+                    outVertices.push_back(0.0f);
+                }
+
             }
         }
     }
@@ -158,14 +225,14 @@ bool DrawBoard(int modelLoc, int corLoc, int shaderProgram){
 }
 
 bool DrawPawn(int modelLoc, int corLoc, int shaderProgram, int tam){
-    glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
+    glUniform3f(corLoc, 0.85f, 0.85f, 0.85f);
     for (int i = 0; i < 8; i++){
         glm::mat4 modelPeao = glm::mat4(1.0f);
         
         modelPeao = glm::translate(modelPeao, glm::vec3((float)i+0.5f, 0.2f, 6.5f));
         modelPeao = glm::scale(modelPeao, glm::vec3(1.0f, 1.0f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelPeao));
-        glDrawArrays(GL_TRIANGLES, 0, tam/3);
+        glDrawArrays(GL_TRIANGLES, 0, tam/6);
     }
 
     glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
@@ -175,7 +242,7 @@ bool DrawPawn(int modelLoc, int corLoc, int shaderProgram, int tam){
         modelPeao = glm::translate(modelPeao, glm::vec3((float)i+0.5f, 0.2f, 1.5f));
         modelPeao = glm::scale(modelPeao, glm::vec3(1.0f, 1.0f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelPeao));
-        glDrawArrays(GL_TRIANGLES, 0, tam/3);
+        glDrawArrays(GL_TRIANGLES, 0, tam/6);
     }
 
     return true;
@@ -183,19 +250,19 @@ bool DrawPawn(int modelLoc, int corLoc, int shaderProgram, int tam){
 
 bool DrawBishop(int modelLoc, int corLoc, int shaderProgram, int tam){
     //bispos brancos
-    glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
+    glUniform3f(corLoc, 0.85f, 0.85f, 0.85f);
 
     glm::mat4 modelBispo = glm::mat4(1.0f);
     modelBispo = glm::translate(modelBispo, glm::vec3(2.5f, 0.2f, 7.5f));
     modelBispo = glm::scale(modelBispo, glm::vec3(1.35f, 1.35f, 1.35f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
-    glDrawArrays(GL_TRIANGLES, 0, tam/3);
+    glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
     modelBispo = glm::mat4(1.0f);
     modelBispo = glm::translate(modelBispo, glm::vec3(5.5f, 0.2f, 7.5f));
     modelBispo = glm::scale(modelBispo, glm::vec3(1.35f, 1.35f, 1.35f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
-    glDrawArrays(GL_TRIANGLES, 0, tam/3);
+    glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
     //bispos pretos
     glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
@@ -204,26 +271,26 @@ bool DrawBishop(int modelLoc, int corLoc, int shaderProgram, int tam){
     modelBispo = glm::translate(modelBispo, glm::vec3(2.5f, 0.2f, 0.5f));
     modelBispo = glm::scale(modelBispo, glm::vec3(1.35f, 1.35f, 1.35f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
-    glDrawArrays(GL_TRIANGLES, 0, tam/3);
+    glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
     modelBispo = glm::mat4(1.0f);
     modelBispo = glm::translate(modelBispo, glm::vec3(5.5f, 0.2f, 0.5f));
     modelBispo = glm::scale(modelBispo, glm::vec3(1.35f, 1.35f, 1.35f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
-    glDrawArrays(GL_TRIANGLES, 0, tam/3);
+    glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
     return true;
 }
 
 bool DrawRook(int modelLoc, int corLoc, int shaderProgram, int tam){
     
-    glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
+    glUniform3f(corLoc, 0.85f, 0.85f, 0.85f);
     for (int i : {0, 7}){
         glm::mat4 modelTorre = glm::mat4(1.0f);
         modelTorre = glm::translate(modelTorre, glm::vec3((float)i+0.5f, 0.2f, 7.5f));
         modelTorre = glm::scale(modelTorre, glm::vec3(1.15f, 1.15f, 1.15f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelTorre));
-        glDrawArrays(GL_TRIANGLES, 0, tam/3);
+        glDrawArrays(GL_TRIANGLES, 0, tam/6);
     }
 
     glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
@@ -232,7 +299,7 @@ bool DrawRook(int modelLoc, int corLoc, int shaderProgram, int tam){
         modelTorre = glm::translate(modelTorre, glm::vec3((float)i+0.5f, 0.2f, 0.5f));
         modelTorre = glm::scale(modelTorre, glm::vec3(1.15f, 1.15f, 1.15f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelTorre));
-        glDrawArrays(GL_TRIANGLES, 0, tam/3);
+        glDrawArrays(GL_TRIANGLES, 0, tam/6);
     }
 
     return true;
@@ -240,13 +307,13 @@ bool DrawRook(int modelLoc, int corLoc, int shaderProgram, int tam){
 
 bool DrawQueen(int modelLoc, int corLoc, int shaderProgram, int tam){
     //dama branca
-    glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
+    glUniform3f(corLoc, 0.85f, 0.85f, 0.85f);
 
     glm::mat4 modelDama = glm::mat4(1.0f);
     modelDama = glm::translate(modelDama, glm::vec3(3.5f, 0.2f, 7.5f));
     modelDama = glm::scale(modelDama, glm::vec3(1.5f, 1.5f, 1.5f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelDama));
-    glDrawArrays(GL_TRIANGLES, 0, tam/3);
+    glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
     //dama preta
     glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
@@ -255,7 +322,7 @@ bool DrawQueen(int modelLoc, int corLoc, int shaderProgram, int tam){
     modelDama = glm::translate(modelDama, glm::vec3(3.5f, 0.2f, 0.5f));
     modelDama = glm::scale(modelDama, glm::vec3(1.5f, 1.5f, 1.5f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelDama));
-    glDrawArrays(GL_TRIANGLES, 0, tam/3);
+    glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
     return true;
 }
@@ -351,55 +418,55 @@ int main() {
 
     
 
-
+    //vertices das faces do cubo e suas normais
     float verticesCubo[] = {
-        // Face de trás
-        0.0f, 0.0f, 0.0f, 
-        1.0f, 0.0f, 0.0f, 
-        1.0f, 1.0f, 0.0f, 
-        1.0f, 1.0f, 0.0f, 
-        0.0f, 1.0f, 0.0f, 
-        0.0f, 0.0f, 0.0f, 
+        // Face Trás 
+        0.0f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f,
+        1.0f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f,
+        1.0f, 1.0f, 0.0f,  0.0f, 0.0f, -1.0f,
+        1.0f, 1.0f, 0.0f,  0.0f, 0.0f, -1.0f,
+        0.0f, 1.0f, 0.0f,  0.0f, 0.0f, -1.0f,
+        0.0f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f,
 
-        // Face da frente
-        0.0f, 0.0f, 1.0f, 
-        1.0f, 0.0f, 1.0f, 
-        1.0f, 1.0f, 1.0f, 
-        1.0f, 1.0f, 1.0f, 
-        0.0f, 1.0f, 1.0f, 
-        0.0f, 0.0f, 1.0f, 
+        // Face Frente 
+        0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+        1.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+        0.0f, 1.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
 
-        // Face da esquerda
-        0.0f, 1.0f, 1.0f, 
-        0.0f, 1.0f, 0.0f, 
-        0.0f, 0.0f, 0.0f, 
-        0.0f, 0.0f, 0.0f, 
-        0.0f, 0.0f, 1.0f, 
-        0.0f, 1.0f, 1.0f, 
+        // Face Esquerda 
+        0.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
 
-        // Face da direita
-        1.0f, 1.0f, 1.0f, 
-        1.0f, 1.0f, 0.0f, 
-        1.0f, 0.0f, 0.0f, 
-        1.0f, 0.0f, 0.0f, 
-        1.0f, 0.0f, 1.0f, 
-        1.0f, 1.0f, 1.0f, 
+        // Face Direita 
+        1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f,
+        1.0f, 1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f,
+        1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f,
 
-        // Face de baixo
-        0.0f, 0.0f, 0.0f, 
-        1.0f, 0.0f, 0.0f, 
-        1.0f, 0.0f, 1.0f, 
-        1.0f, 0.0f, 1.0f, 
-        0.0f, 0.0f, 1.0f, 
-        0.0f, 0.0f, 0.0f, 
+        // Face Baixo 
+        0.0f, 0.0f, 0.0f,  0.0f, -1.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,  0.0f, -1.0f, 0.0f,
+        1.0f, 0.0f, 1.0f,  0.0f, -1.0f, 0.0f,
+        1.0f, 0.0f, 1.0f,  0.0f, -1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f,  0.0f, -1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,  0.0f, -1.0f, 0.0f,
 
-        // Face de cima
-        0.0f, 1.0f, 0.0f, 
-        1.0f, 1.0f, 0.0f, 
-        1.0f, 1.0f, 1.0f, 
-        1.0f, 1.0f, 1.0f, 
-        0.0f, 1.0f, 1.0f, 
-        0.0f, 1.0f, 0.0f
+        // Face Cima
+        0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f
     };
 
     //estruturas para desenhar os objetos
@@ -495,11 +562,24 @@ int main() {
         int modelLoc = glGetUniformLocation(shaderProgram, "model");
         int corLoc = glGetUniformLocation(shaderProgram, "corCasa");
 
-        
-        glBindVertexArray(VAO_Tabuleiro);
+        int ligthPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
+        glUniform3f(ligthPosLoc, 4.0f, 3.0f, 4.0f);
+
+        int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");
+        if(cameraBrancas){
+            glUniform3f(viewPosLoc, 4.0f, 8.0f, 14.0f);
+        }else{
+            glUniform3f(viewPosLoc, 4.0f, 8.0f, -6.0f);
+        }
+
+
         //desenha o tabuleiro
+        int brilhoLocal = glGetUniformLocation(shaderProgram, "brilhoMaterial");
+        glUniform1f(brilhoLocal, 0.1f);
+        glBindVertexArray(VAO_Tabuleiro);
         DrawBoard(modelLoc, corLoc, shaderProgram);
 
+        glUniform1d(brilhoLocal, 0.6f);
 
         //desenho dos peões
         glBindVertexArray(VAO_Peao);
