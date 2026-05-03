@@ -430,13 +430,21 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
+    bool cameraBrancas = true;
+    bool teclaCApertada = false;
 
     //o loop de renderização (Roda até a janela ser fechada)
     while (!glfwWindowShouldClose(window)) {
         //entrada (ex: se apertar ESC, fecha a janela)
         if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
-
+        if(glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && !teclaCApertada){
+            cameraBrancas = !cameraBrancas;
+            teclaCApertada = true;
+        }
+        if(glfwGetKey(window, GLFW_KEY_C) == GLFW_RELEASE){
+            teclaCApertada = false;
+        }
         //pega a largura e altura dinâmicas da janela
         int largura, altura;
         glfwGetFramebufferSize(window, &largura, &altura);
@@ -462,11 +470,20 @@ int main() {
         glUniformMatrix4fv(projecaoLoc, 1, GL_FALSE, glm::value_ptr(projecao));
 
         //cria e envia uma matriz de câmera
-        glm::mat4 view = glm::lookAt(
-            glm::vec3(4.0f, 8.0f, 14.0f), //olho da câmera
-            glm::vec3(4.0f, 0.0f, 4.0f), //olhando para o centro do tabuleiro
-            glm::vec3(0.0f, 1.0f, 0.0f) //vetor para cima
-        );
+        glm::mat4 view;
+        if(cameraBrancas){
+            view = glm::lookAt(
+                glm::vec3(4.0f, 8.0f, 14.0f), //olho atrás das brancas
+                glm::vec3(4.0f, 0.0f, 4.0f),  //centro do tabuleiro
+                glm::vec3(0.0f, 1.0f, 0.0f)   //vetor para cima
+            );
+        } else {
+            view = glm::lookAt(
+                glm::vec3(4.0f, 8.0f, -6.0f), //olho atrás das pretas
+                glm::vec3(4.0f, 0.0f, 4.0f),  //centro do tabuleiro
+                glm::vec3(0.0f, 1.0f, 0.0f)   //vetor para cima
+            );
+        }
         int viewLoc = glGetUniformLocation(shaderProgram, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
