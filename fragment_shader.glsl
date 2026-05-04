@@ -13,6 +13,8 @@ uniform float brilhoMaterial;
 
 uniform sampler2D textura;
 uniform bool usarTextura;
+uniform vec2 escalaTextura;
+
 
 //shader que decide as cores e aplica o modelo de Phong
 void main(){
@@ -40,7 +42,7 @@ void main(){
     vec3 resultadoLuz = (ambient+diffuse+specular+luzCamera);
     
     if (usarTextura){
-        vec4 corImagem = texture(textura, TexCoord);
+        vec4 corImagem = texture(textura, TexCoord*escalaTextura);
         FragColor = vec4(corImagem.rgb*resultadoLuz, 1.0);
     }else{
         FragColor = vec4(corCasa*resultadoLuz, 1.0);

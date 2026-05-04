@@ -179,7 +179,7 @@ void SetupGPUModel(float* vertices, size_t tam, unsigned int& VAO, unsigned int&
     glBindVertexArray(0);
 }
 
-bool DrawBoard(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texMarmore, unsigned int texMarmoreEscuro, int shaderProgram){
+bool DrawBoard(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texMarmore, unsigned int texMarmoreEscuro, unsigned int texMadeira, int shaderProgram){
 
     glUniform1i(usarTexturaLoc, 1);
 
@@ -206,13 +206,19 @@ bool DrawBoard(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texMar
             
         }
 
-        glUniform1i(usarTexturaLoc, 0);
         
-        glUniform3f(corLoc, 0.3f, 0.15f, 0.05f); // Cor sólida para a MarmoreEscuro
+        // glUniform3f(corLoc, 0.3f, 0.15f, 0.05f); // Cor sólida para a MarmoreEscuro
+        int escalaTexturaLoc = glGetUniformLocation(shaderProgram, "escalaTextura");
+        glUniform2f(escalaTexturaLoc, 1.0f, 1.0f);
+        
+        glUniform1i(usarTexturaLoc, 1);
+        glBindTexture(GL_TEXTURE_2D, texMadeira);
+        glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
 
         glm::mat4 modelBorda;
 
         // Borda Esquerda (Esticada no eixo Z)
+        glUniform2f(escalaTexturaLoc, 0.5f, 9.0f);
         modelBorda = glm::mat4(1.0f);
         modelBorda = glm::translate(modelBorda, glm::vec3(-0.5f, 0.0f, -0.5f)); 
         modelBorda = glm::scale(modelBorda, glm::vec3(0.5f, 0.25f, 9.0f));       
@@ -220,6 +226,7 @@ bool DrawBoard(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texMar
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // Borda Direita (Esticada no eixo Z)
+        glUniform2f(escalaTexturaLoc, 0.5f, 9.0f);
         modelBorda = glm::mat4(1.0f);
         modelBorda = glm::translate(modelBorda, glm::vec3(8.0f, 0.0f, -0.5f));
         modelBorda = glm::scale(modelBorda, glm::vec3(0.5f, 0.25f, 9.0f));
@@ -227,6 +234,7 @@ bool DrawBoard(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texMar
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // Borda Fundo / Superior (Esticada no eixo X)
+        glUniform2f(escalaTexturaLoc, 8.0f, 0.5f);
         modelBorda = glm::mat4(1.0f);
         modelBorda = glm::translate(modelBorda, glm::vec3(0.0f, 0.0f, -0.5f));
         modelBorda = glm::scale(modelBorda, glm::vec3(8.0f, 0.25f, 0.5f));
@@ -234,12 +242,15 @@ bool DrawBoard(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texMar
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // Borda Frente / Inferior (Esticada no eixo X)
+        glUniform2f(escalaTexturaLoc, 8.0f, 0.5f);
         modelBorda = glm::mat4(1.0f);
         modelBorda = glm::translate(modelBorda, glm::vec3(0.0f, 0.0f, 8.0f));
         modelBorda = glm::scale(modelBorda, glm::vec3(8.0f, 0.25f, 0.5f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBorda));
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
+        //reseta a escala das texturas
+        glUniform2f(escalaTexturaLoc, 1.0f, 1.0f);
         return true;
 }
 
@@ -545,7 +556,7 @@ int main() {
 
     unsigned int texMarmore = CarregarTextura("textures/marble.jpg");
     unsigned int texMarmoreEscuro = CarregarTextura("textures/blackmarble.jpg");
-
+    unsigned int texMadeira = CarregarTextura("textures/wood.jpg");
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
@@ -639,7 +650,7 @@ int main() {
         int brilhoLocal = glGetUniformLocation(shaderProgram, "brilhoMaterial");
         glUniform1f(brilhoLocal, 0.1f);
         glBindVertexArray(VAO_Tabuleiro);
-        DrawBoard(modelLoc, corLoc, usarTexturaLoc, texMarmore, texMarmoreEscuro, shaderProgram);
+        DrawBoard(modelLoc, corLoc, usarTexturaLoc, texMarmore, texMarmoreEscuro, texMadeira, shaderProgram);
 
         //decide o brilho ao bater a luz no material desenhado
         glUniform1i(usarTexturaLoc, 0);
