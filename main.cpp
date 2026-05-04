@@ -312,6 +312,40 @@ bool DrawBishop(int modelLoc, int corLoc, int shaderProgram, int tam){
     return true;
 }
 
+bool DrawKnight(int modelLoc, int corLoc, int shaderProgram, int tam){
+    //cavalos brancos
+    glUniform3f(corLoc, 0.85f, 0.85f, 0.85f);
+
+    glm::mat4 modelCavalo = glm::mat4(1.0f);
+    modelCavalo = glm::translate(modelCavalo, glm::vec3(1.5f, 0.2f, 7.5f));
+    modelCavalo = glm::scale(modelCavalo, glm::vec3(1.35f, 1.35f, 1.35f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCavalo));
+    glDrawArrays(GL_TRIANGLES, 0, tam/6);
+
+    modelCavalo = glm::mat4(1.0f);
+    modelCavalo = glm::translate(modelCavalo, glm::vec3(6.5f, 0.2f, 7.5f));
+    modelCavalo = glm::scale(modelCavalo, glm::vec3(1.35f, 1.35f, 1.35f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCavalo));
+    glDrawArrays(GL_TRIANGLES, 0, tam/6);
+
+    //cavalos pretos
+    glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
+
+    modelCavalo = glm::mat4(1.0f);
+    modelCavalo = glm::translate(modelCavalo, glm::vec3(1.5f, 0.2f, 0.5f));
+    modelCavalo = glm::scale(modelCavalo, glm::vec3(1.35f, 1.35f, 1.35f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCavalo));
+    glDrawArrays(GL_TRIANGLES, 0, tam/6);
+
+    modelCavalo = glm::mat4(1.0f);
+    modelCavalo = glm::translate(modelCavalo, glm::vec3(6.5f, 0.2f, 0.5f));
+    modelCavalo = glm::scale(modelCavalo, glm::vec3(1.35f, 1.35f, 1.35f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCavalo));
+    glDrawArrays(GL_TRIANGLES, 0, tam/6);
+
+    return true;
+}
+
 bool DrawRook(int modelLoc, int corLoc, int shaderProgram, int tam){
     
     glUniform3f(corLoc, 0.85f, 0.85f, 0.85f);
@@ -538,6 +572,11 @@ int main() {
     unsigned int VAO_Bispo, VBO_Bispo;
     SetupGPUModel(verticesBispo.data(), verticesBispo.size()*sizeof(float), VAO_Bispo, VBO_Bispo);
 
+    vector<float> verticesCavalo;
+    LoadOBJ("models/knight.obj", verticesCavalo);
+    unsigned int VAO_Cavalo, VBO_Cavalo;
+    SetupGPUModel(verticesCavalo.data(), verticesCavalo.size()*sizeof(float), VAO_Cavalo, VBO_Cavalo);
+
     vector<float> verticesTorre;
     LoadOBJ("models/rook.obj", verticesTorre);
     unsigned int VAO_Torre, VBO_Torre;
@@ -664,6 +703,10 @@ int main() {
         glBindVertexArray(VAO_Bispo);
         DrawBishop(modelLoc, corLoc, shaderProgram, verticesBispo.size());
 
+        //desenho dos cavalos
+        glBindVertexArray(VAO_Cavalo);
+        DrawKnight(modelLoc, corLoc, shaderProgram, verticesCavalo.size());
+
         //desenho das torres
         glBindVertexArray(VAO_Torre);        
         DrawRook(modelLoc, corLoc, shaderProgram, verticesTorre.size());
@@ -685,6 +728,7 @@ int main() {
     glDeleteBuffers(1, &VBO_Tabuleiro);
     glDeleteBuffers(1, &VBO_Peao);
     glDeleteBuffers(1, &VBO_Bispo);
+    glDeleteBuffers(1, &VBO_Cavalo);
     glDeleteBuffers(1, &VBO_Torre);
     glDeleteProgram(shaderProgram);
     glfwTerminate();
