@@ -25,8 +25,14 @@ unsigned int CarregarTextura(const char* caminho) {
     // comportamento nas bordas e filtragem
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    //aplicacao do filtro anisotropico
+    float maxAnisotropia;
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropia); //qual o maximo da placa de video?
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropia);//aplica o maximo!
 
     int largura, altura, canais;
     stbi_set_flip_vertically_on_load(true); // OpenGL lê de baixo para cima
@@ -57,34 +63,10 @@ string ReadShaderFile(const char* filePath){
     return buffer.str();
 }
 
-//função para criar o VBO e VAO
-//VBO: estrutura para armazenar grande números de vértices na memória da GPU (vertex buffer object)
-//VAO: estrutura que indica à GPU como o VBO está estruturado
-void SetupGPUModel(float* vertices, size_t tam, unsigned int& VAO, unsigned int& VBO){
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO); //para qualquer atualização no GL_ARRAY_BUFFER, será atualizado o VBO
-
-    glBufferData(GL_ARRAY_BUFFER, tam, vertices, GL_STATIC_DRAW); //copia os valores de "vertices[]" para o VBO
-
-    //instruções para a GPU conseguir ler o VBO corretamente
-    //lê os vértices
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    //lê as normais
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(3*sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    //desconexão para evitar que codigos futuros alterem o VAO/VBO acidentalmente
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);   
-}
-
 bool LoadOBJ(const char* path, vector<float>& outVertices){
     vector<glm::vec3> verticesTemporarios;
     vector<glm::vec3> normaisTemporarias;
+    vector<glm::vec2> uvsTemporarias;
 
     ifstream arquivo(path);
     if (!arquivo.is_open()) { cerr << "Falha ao abrir: " << path << endl; return false; }
@@ -103,91 +85,77 @@ bool LoadOBJ(const char* path, vector<float>& outVertices){
             glm::vec3 normal;
             iss >> normal.x >> normal.y >> normal.z;
             normaisTemporarias.push_back(normal);
-        } else if(tipo == "f"){
+        }else if(tipo == "vt"){
+            glm::vec2 uv;
+            iss >> uv.x >> uv.y;
+            uvsTemporarias.push_back(uv);
+        }else if(tipo == "f"){
             // lê até 4 tokens (suporta triângulos e quads)
             vector<int> indicesVertices;
             vector<int> indicesNormais;
+            vector<int> indicesUvs;
             string token;
+            //logica para ler os formatos: v, v//vn e v/vt/vn
             while(iss >> token){
-                //acha as barras
-                size_t primeiraBarra = token.find('/');
-                size_t segundaBarra = token.find('/', primeiraBarra+1);
-
-                //pega o vertice
-                indicesVertices.push_back(stoi(token.substr(0, primeiraBarra)) - 1);
-
-                //se houver, pega a normal
-                if(segundaBarra != string::npos && segundaBarra + 1 < token.length()){
-                    indicesNormais.push_back(stoi(token.substr(segundaBarra+1))-1);
+                int vIdx = -1, uvIdx = -1, nIdx = -1;
+                size_t p1 = token.find('/');
+                if(p1 != string::npos){
+                    vIdx = stoi(token.substr(0, p1))-1;
+                    size_t p2 = token.find('/', p1+1);
+                    if(p2 != string::npos){
+                        if(p2 > p1+1) uvIdx = stoi(token.substr(p1+1, p2-p1-1))-1;
+                        if(p2 + 1 < token.length()) nIdx = stoi(token.substr(p2+1))-1;
+                    }else{
+                        uvIdx = stoi(token.substr(p1+1))-1;
+                    }
                 }else{
-                    indicesNormais.push_back(-1);
+                    vIdx = stoi(token)-1;
                 }
+
+                indicesVertices.push_back(vIdx);
+                indicesUvs.push_back(uvIdx);
+                indicesNormais.push_back(nIdx);
             }
 
-            // triangula: funciona para triângulos (3) e quads (4)
+            // triangula: funciona para triângulos (3) e quads (4) e garante posicao (3), normal (3) e textura (2)
             for(int i = 1; i + 1 < (int)indicesVertices.size(); i++){
-                int v1 = indicesVertices[0];
-                int n1 = indicesNormais[0];
+                int v[3]  = {indicesVertices[0], indicesVertices[i], indicesVertices[i+1]};
+                int n[3]  = {indicesNormais[0], indicesNormais[i], indicesNormais[i+1]};
+                int uv[3] = {indicesUvs[0], indicesUvs[i], indicesUvs[i+1]};
 
-                outVertices.push_back(verticesTemporarios[v1].x);
-                outVertices.push_back(verticesTemporarios[v1].y);
-                outVertices.push_back(verticesTemporarios[v1].z);
-               
-                //se existir a normal, coloca-a. Se não, adiciona uma normal apontando para Y
-                if(n1 != -1){
-                    outVertices.push_back(normaisTemporarias[n1].x);
-                    outVertices.push_back(normaisTemporarias[n1].y);
-                    outVertices.push_back(normaisTemporarias[n1].z);
-                }else{
-                    outVertices.push_back(0.0f);
-                    outVertices.push_back(1.0f);
-                    outVertices.push_back(0.0f);
+                for (int j = 0; j < 3; j++) {
+                    //posição
+                    outVertices.push_back(verticesTemporarios[v[j]].x);
+                    outVertices.push_back(verticesTemporarios[v[j]].y);
+                    outVertices.push_back(verticesTemporarios[v[j]].z);
+
+                    //normal
+                    if (n[j] != -1) {
+                        outVertices.push_back(normaisTemporarias[n[j]].x);
+                        outVertices.push_back(normaisTemporarias[n[j]].y);
+                        outVertices.push_back(normaisTemporarias[n[j]].z);
+                    } else {
+                        outVertices.push_back(0.0f); outVertices.push_back(1.0f); outVertices.push_back(0.0f);
+                    }
+
+                    //textura
+                    if (uv[j] != -1) {
+                        outVertices.push_back(uvsTemporarias[uv[j]].x);
+                        outVertices.push_back(uvsTemporarias[uv[j]].y);
+                    } else {
+                        outVertices.push_back(0.0f); outVertices.push_back(0.0f);
+                    }
                 }
-
-                int v2 = indicesVertices[i];
-                int n2 = indicesNormais[i];
-
-                outVertices.push_back(verticesTemporarios[v2].x);
-                outVertices.push_back(verticesTemporarios[v2].y);
-                outVertices.push_back(verticesTemporarios[v2].z);
-               
-                //se existir a normal, coloca-a. Se não, adiciona uma normal apontando para Y
-                if(n2 != -1){
-                    outVertices.push_back(normaisTemporarias[n2].x);
-                    outVertices.push_back(normaisTemporarias[n2].y);
-                    outVertices.push_back(normaisTemporarias[n2].z);
-                }else{
-                    outVertices.push_back(0.0f);
-                    outVertices.push_back(1.0f);
-                    outVertices.push_back(0.0f);
-                }
-
-
-                int v3 = indicesVertices[i + 1];
-                int n3 = indicesNormais[i + 1];
-
-                outVertices.push_back(verticesTemporarios[v3].x);
-                outVertices.push_back(verticesTemporarios[v3].y);
-                outVertices.push_back(verticesTemporarios[v3].z);
-               
-                //se existir a normal, coloca-a. Se não, adiciona uma normal apontando para Y
-                if(n3 != -1){
-                    outVertices.push_back(normaisTemporarias[n3].x);
-                    outVertices.push_back(normaisTemporarias[n3].y);
-                    outVertices.push_back(normaisTemporarias[n3].z);
-                }else{
-                    outVertices.push_back(0.0f);
-                    outVertices.push_back(1.0f);
-                    outVertices.push_back(0.0f);
-                }
-
             }
         }
     }
     return true;
 }
 
-void SetupGPUModelUV(float* vertices, size_t tam, unsigned int& VAO, unsigned int& VBO) {
+//função para criar o VBO e VAO
+//VBO: estrutura para armazenar grande números de vértices na memória da GPU (vertex buffer object)
+//VAO: estrutura que indica à GPU como o VBO está estruturado
+void SetupGPUModel(float* vertices, size_t tam, unsigned int& VAO, unsigned int& VBO) {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glBindVertexArray(VAO);
@@ -195,30 +163,38 @@ void SetupGPUModelUV(float* vertices, size_t tam, unsigned int& VAO, unsigned in
     glBufferData(GL_ARRAY_BUFFER, tam, vertices, GL_STATIC_DRAW);
 
     // atributo 0: posição (xyz)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // atributo 1: UV (uv)
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    // atributo 1: iluminação (normal)
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    //atributo 2: textura (uv)
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
-bool DrawBoard(int modelLoc, int corLoc, int shaderProgram){
+bool DrawBoard(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texMarmore, unsigned int texMarmoreEscuro, int shaderProgram){
+
+    glUniform1i(usarTexturaLoc, 1);
 
     for (int x = 0; x < 8; x++){
             for (int z = 0; z < 8; z++){
                 //logica para alterar cores
                 glm::vec3 cor;
                 if((x+z)%2 == 0){
-                    cor = glm::vec3(0.9f, 0.9f, 0.8f); //bege claro
+                    glBindTexture(GL_TEXTURE_2D, texMarmore);
                 }else{
-                    cor = glm::vec3(0.4f, 0.2f, 0.1f); //marrom escuro
+                    glBindTexture(GL_TEXTURE_2D, texMarmoreEscuro);
                 }
-                glUniform3f(corLoc, cor.r, cor.g, cor.b);
                 
+                glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
+
                 //calculo da matriz Model, utilizando x e z para transladar. y = o, já que o tabuleiro está no plano XZ
                 glm::mat4 model = glm::mat4(1.0f);
                 model = glm::translate(model, glm::vec3(x, 0.0f, z));
@@ -229,8 +205,10 @@ bool DrawBoard(int modelLoc, int corLoc, int shaderProgram){
             }
             
         }
+
+        glUniform1i(usarTexturaLoc, 0);
         
-        glUniform3f(corLoc, 0.3f, 0.15f, 0.05f); // Cor sólida para a madeira
+        glUniform3f(corLoc, 0.3f, 0.15f, 0.05f); // Cor sólida para a MarmoreEscuro
 
         glm::mat4 modelBorda;
 
@@ -482,53 +460,54 @@ int main() {
 
     //vertices das faces do cubo e suas normais
     float verticesCubo[] = {
-        // Face Trás 
-        0.0f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f,
-        1.0f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f,
-        1.0f, 1.0f, 0.0f,  0.0f, 0.0f, -1.0f,
-        1.0f, 1.0f, 0.0f,  0.0f, 0.0f, -1.0f,
-        0.0f, 1.0f, 0.0f,  0.0f, 0.0f, -1.0f,
-        0.0f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f,
+        // Posições (3)       // Normais (3)      // UVs (2)
+        // Face Trás
+        0.0f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f,  1.0f, 0.0f,
+        1.0f, 1.0f, 0.0f,  0.0f, 0.0f, -1.0f,  1.0f, 1.0f,
+        1.0f, 1.0f, 0.0f,  0.0f, 0.0f, -1.0f,  1.0f, 1.0f,
+        0.0f, 1.0f, 0.0f,  0.0f, 0.0f, -1.0f,  0.0f, 1.0f,
+        0.0f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f,
 
-        // Face Frente 
-        0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
-        1.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 1.0f,
-        0.0f, 1.0f, 1.0f,  0.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+        // Face Frente
+        0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
+        1.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f,
+        1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
+        0.0f, 1.0f, 1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
 
-        // Face Esquerda 
-        0.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+        // Face Esquerda
+        0.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f,  1.0f, 1.0f,
+        0.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f,  0.0f, 1.0f,
+        0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f,  1.0f, 0.0f,
+        0.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f,  1.0f, 1.0f,
 
-        // Face Direita 
-        1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f,
-        1.0f, 1.0f, 0.0f,  1.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f,  1.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f,  1.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f,
-        1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f,
+        // Face Direita
+        1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 1.0f,
+        1.0f, 1.0f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 1.0f,
+        1.0f, 0.0f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 0.0f,
+        1.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+        1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 1.0f,
 
-        // Face Baixo 
-        0.0f, 0.0f, 0.0f,  0.0f, -1.0f, 0.0f,
-        1.0f, 0.0f, 0.0f,  0.0f, -1.0f, 0.0f,
-        1.0f, 0.0f, 1.0f,  0.0f, -1.0f, 0.0f,
-        1.0f, 0.0f, 1.0f,  0.0f, -1.0f, 0.0f,
-        0.0f, 0.0f, 1.0f,  0.0f, -1.0f, 0.0f,
-        0.0f, 0.0f, 0.0f,  0.0f, -1.0f, 0.0f,
+        // Face Baixo
+        0.0f, 0.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,  0.0f, -1.0f, 0.0f,  1.0f, 0.0f,
+        1.0f, 0.0f, 1.0f,  0.0f, -1.0f, 0.0f,  1.0f, 1.0f,
+        1.0f, 0.0f, 1.0f,  0.0f, -1.0f, 0.0f,  1.0f, 1.0f,
+        0.0f, 0.0f, 1.0f,  0.0f, -1.0f, 0.0f,  0.0f, 1.0f,
+        0.0f, 0.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f,
 
-        // Face Cima
-        0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f
+        // Face Cima 
+        0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f,
+        1.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
+        1.0f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
+        0.0f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f
     };
 
     //estruturas para desenhar os objetos
@@ -541,8 +520,7 @@ int main() {
     vector<float> verticesPeao;
     LoadOBJ("models/pawn.obj", verticesPeao);
     unsigned int VAO_Peao, VBO_Peao;
-    SetupGPUModelUV(verticesPeao.data(), verticesPeao.size()*sizeof(float), VAO_Peao, VBO_Peao);
-    unsigned int texturaPeao = CarregarTextura("textures/glass.png");
+    SetupGPUModel(verticesPeao.data(), verticesPeao.size()*sizeof(float), VAO_Peao, VBO_Peao);
 
     vector<float> verticesBispo;
     LoadOBJ("models/bishop.obj", verticesBispo);
@@ -565,7 +543,8 @@ int main() {
     SetupGPUModel(verticesRei.data(), verticesRei.size() * sizeof(float), VAO_Rei, VBO_Rei);
 
 
-
+    unsigned int texMarmore = CarregarTextura("textures/marble.jpg");
+    unsigned int texMarmoreEscuro = CarregarTextura("textures/blackmarble.jpg");
 
 
     glEnable(GL_DEPTH_TEST);
@@ -654,13 +633,16 @@ int main() {
         glUniform3f(viewPosLoc, camX, 8.0f, camZ);
 
 
+        int usarTexturaLoc = glGetUniformLocation(shaderProgram, "usarTextura");
+
         //desenha o tabuleiro
         int brilhoLocal = glGetUniformLocation(shaderProgram, "brilhoMaterial");
         glUniform1f(brilhoLocal, 0.1f);
         glBindVertexArray(VAO_Tabuleiro);
-        DrawBoard(modelLoc, corLoc, shaderProgram);
+        DrawBoard(modelLoc, corLoc, usarTexturaLoc, texMarmore, texMarmoreEscuro, shaderProgram);
 
         //decide o brilho ao bater a luz no material desenhado
+        glUniform1i(usarTexturaLoc, 0);
         glUniform1f(brilhoLocal, 0.6f);
 
         //desenho dos peões
@@ -693,7 +675,6 @@ int main() {
     glDeleteBuffers(1, &VBO_Peao);
     glDeleteBuffers(1, &VBO_Bispo);
     glDeleteBuffers(1, &VBO_Torre);
-    glDeleteTextures(1, &texturaPeao);
     glDeleteProgram(shaderProgram);
     glfwTerminate();
     return 0;
