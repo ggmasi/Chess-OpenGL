@@ -15,6 +15,8 @@ uniform sampler2D textura;
 uniform bool usarTextura;
 uniform vec2 escalaTextura;
 
+uniform float focoBrilho;
+uniform float intensidadeDifusa;
 
 //shader que decide as cores e aplica o modelo de Phong
 void main(){
@@ -29,12 +31,12 @@ void main(){
     vec3 norm = normalize(Normal);
     vec3 ligthDir = normalize(lightPos - FragPos);
     float diff = max(dot(norm, ligthDir), 0.0);
-    vec3 diffuse = diff*corLuz*0.7;
+    vec3 diffuse = diff*corLuz*intensidadeDifusa;
 
     //brilho especular
     vec3 viewDir = normalize(viewPos-FragPos);
     vec3 reflectDir = reflect(-ligthDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64); //64 = foco do brilho
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), focoBrilho); 
     vec3 corBrilho = mix(vec3(1.0), corLuz, 0.5);
     vec3 specular = brilhoMaterial * spec * corBrilho;
 

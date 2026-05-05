@@ -648,14 +648,21 @@ int main() {
 
         //desenha o tabuleiro
         int brilhoLocal = glGetUniformLocation(shaderProgram, "brilhoMaterial");
-        glUniform1f(brilhoLocal, 0.1f);
+        int focoLoc = glGetUniformLocation(shaderProgram, "focoBrilho");
+        int difusaLoc = glGetUniformLocation(shaderProgram, "intensidadeDifusa");
+        glUniform1f(brilhoLocal, 0.3f);
+        glUniform1f(focoLoc, 32.0f);
+        glUniform1f(difusaLoc, 0.7f);
         glBindVertexArray(VAO_Tabuleiro);
         DrawBoard(modelLoc, corLoc, usarTexturaLoc, texMarmore, texMarmoreEscuro, texMadeira, shaderProgram);
 
         //decide o brilho ao bater a luz no material desenhado
         glUniform1i(usarTexturaLoc, 0);
-        glUniform1f(brilhoLocal, 0.6f);
-
+        glUniform1f(brilhoLocal, 1.2f); 
+        glUniform1f(focoLoc, 128.0f); 
+        
+        // O marfim é claro e espalha bem a luz base. Podemos subir a difusão!
+        glUniform1f(difusaLoc, 0.9f);
         //desenho dos peões
         glBindVertexArray(VAO_Peao);
         DrawPawn(modelLoc, corLoc, shaderProgram, verticesPeao.size());
