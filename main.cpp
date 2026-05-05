@@ -259,8 +259,8 @@ bool DrawPawn(int modelLoc, int corLoc, int shaderProgram, int tam){
     for (int i = 0; i < 8; i++){
         glm::mat4 modelPeao = glm::mat4(1.0f);
         
-        modelPeao = glm::translate(modelPeao, glm::vec3((float)i+0.5f, 0.2f, 6.5f));
-        modelPeao = glm::scale(modelPeao, glm::vec3(1.0f, 1.0f, 1.0f));
+        modelPeao = glm::translate(modelPeao, glm::vec3((float)i - 0.05f + 0.5f, 0.1f, 8.1f));
+        modelPeao = glm::scale(modelPeao, glm::vec3(0.125f, 0.125f, 0.125f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelPeao));
         glDrawArrays(GL_TRIANGLES, 0, tam/6);
     }
@@ -269,8 +269,8 @@ bool DrawPawn(int modelLoc, int corLoc, int shaderProgram, int tam){
     for (int i = 0; i < 8; i++){
         glm::mat4 modelPeao = glm::mat4(1.0f);
         
-        modelPeao = glm::translate(modelPeao, glm::vec3((float)i+0.5f, 0.2f, 1.5f));
-        modelPeao = glm::scale(modelPeao, glm::vec3(1.0f, 1.0f, 1.0f));
+        modelPeao = glm::translate(modelPeao, glm::vec3((float)i - 0.05f +0.5f, 0.1f, 3.1f));
+        modelPeao = glm::scale(modelPeao, glm::vec3(0.125f, 0.125f, 0.125f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelPeao));
         glDrawArrays(GL_TRIANGLES, 0, tam/6);
     }
@@ -283,14 +283,14 @@ bool DrawBishop(int modelLoc, int corLoc, int shaderProgram, int tam){
     glUniform3f(corLoc, 0.85f, 0.85f, 0.85f);
 
     glm::mat4 modelBispo = glm::mat4(1.0f);
-    modelBispo = glm::translate(modelBispo, glm::vec3(2.5f, 0.2f, 7.5f));
-    modelBispo = glm::scale(modelBispo, glm::vec3(1.35f, 1.35f, 1.35f));
+    modelBispo = glm::translate(modelBispo, glm::vec3(2.45f, 0.1f, 7.5f));
+    modelBispo = glm::scale(modelBispo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
     glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
     modelBispo = glm::mat4(1.0f);
-    modelBispo = glm::translate(modelBispo, glm::vec3(5.5f, 0.2f, 7.5f));
-    modelBispo = glm::scale(modelBispo, glm::vec3(1.35f, 1.35f, 1.35f));
+    modelBispo = glm::translate(modelBispo, glm::vec3(5.45f, 0.1f, 7.5f));
+    modelBispo = glm::scale(modelBispo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
     glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
@@ -298,14 +298,14 @@ bool DrawBishop(int modelLoc, int corLoc, int shaderProgram, int tam){
     glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
 
     modelBispo = glm::mat4(1.0f);
-    modelBispo = glm::translate(modelBispo, glm::vec3(2.5f, 0.2f, 0.5f));
-    modelBispo = glm::scale(modelBispo, glm::vec3(1.35f, 1.35f, 1.35f));
+    modelBispo = glm::translate(modelBispo, glm::vec3(2.45f, 0.1f, 0.5f));
+    modelBispo = glm::scale(modelBispo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
     glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
     modelBispo = glm::mat4(1.0f);
-    modelBispo = glm::translate(modelBispo, glm::vec3(5.5f, 0.2f, 0.5f));
-    modelBispo = glm::scale(modelBispo, glm::vec3(1.35f, 1.35f, 1.35f));
+    modelBispo = glm::translate(modelBispo, glm::vec3(5.45f, 0.1f, 0.5f));
+    modelBispo = glm::scale(modelBispo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
     glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
@@ -317,14 +317,14 @@ bool DrawKnight(int modelLoc, int corLoc, int shaderProgram, int tam){
     glUniform3f(corLoc, 0.85f, 0.85f, 0.85f);
 
     glm::mat4 modelCavalo = glm::mat4(1.0f);
-    modelCavalo = glm::translate(modelCavalo, glm::vec3(1.5f, 0.2f, 7.5f));
-    modelCavalo = glm::scale(modelCavalo, glm::vec3(1.35f, 1.35f, 1.35f));
+    modelCavalo = glm::translate(modelCavalo, glm::vec3(1.45f, 0.1f, 8.0f));
+    modelCavalo = glm::scale(modelCavalo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCavalo));
     glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
     modelCavalo = glm::mat4(1.0f);
-    modelCavalo = glm::translate(modelCavalo, glm::vec3(6.5f, 0.2f, 7.5f));
-    modelCavalo = glm::scale(modelCavalo, glm::vec3(1.35f, 1.35f, 1.35f));
+    modelCavalo = glm::translate(modelCavalo, glm::vec3(6.45f, 0.1f, 8.0f));
+    modelCavalo = glm::scale(modelCavalo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCavalo));
     glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
@@ -332,14 +332,14 @@ bool DrawKnight(int modelLoc, int corLoc, int shaderProgram, int tam){
     glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
 
     modelCavalo = glm::mat4(1.0f);
-    modelCavalo = glm::translate(modelCavalo, glm::vec3(1.5f, 0.2f, 0.5f));
-    modelCavalo = glm::scale(modelCavalo, glm::vec3(1.35f, 1.35f, 1.35f));
+    modelCavalo = glm::translate(modelCavalo, glm::vec3(1.45f, 0.1f, 1.0f));
+    modelCavalo = glm::scale(modelCavalo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCavalo));
     glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
     modelCavalo = glm::mat4(1.0f);
-    modelCavalo = glm::translate(modelCavalo, glm::vec3(6.5f, 0.2f, 0.5f));
-    modelCavalo = glm::scale(modelCavalo, glm::vec3(1.35f, 1.35f, 1.35f));
+    modelCavalo = glm::translate(modelCavalo, glm::vec3(6.45f, 0.1f, 1.0f));
+    modelCavalo = glm::scale(modelCavalo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCavalo));
     glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
@@ -351,8 +351,8 @@ bool DrawRook(int modelLoc, int corLoc, int shaderProgram, int tam){
     glUniform3f(corLoc, 0.85f, 0.85f, 0.85f);
     for (int i : {0, 7}){
         glm::mat4 modelTorre = glm::mat4(1.0f);
-        modelTorre = glm::translate(modelTorre, glm::vec3((float)i+0.5f, 0.2f, 7.5f));
-        modelTorre = glm::scale(modelTorre, glm::vec3(1.15f, 1.15f, 1.15f));
+        modelTorre = glm::translate(modelTorre, glm::vec3((float)i-0.05f+0.5f, 0.1f, 8.55f));
+        modelTorre = glm::scale(modelTorre, glm::vec3(0.125f, 0.125f, 0.125f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelTorre));
         glDrawArrays(GL_TRIANGLES, 0, tam/6);
     }
@@ -360,8 +360,8 @@ bool DrawRook(int modelLoc, int corLoc, int shaderProgram, int tam){
     glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
     for (int i : {0, 7}){
         glm::mat4 modelTorre = glm::mat4(1.0f);
-        modelTorre = glm::translate(modelTorre, glm::vec3((float)i+0.5f, 0.2f, 0.5f));
-        modelTorre = glm::scale(modelTorre, glm::vec3(1.15f, 1.15f, 1.15f));
+        modelTorre = glm::translate(modelTorre, glm::vec3((float)i-0.05f+0.5f, 0.1f, 1.55f));
+        modelTorre = glm::scale(modelTorre, glm::vec3(0.125f, 0.125f, 0.125f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelTorre));
         glDrawArrays(GL_TRIANGLES, 0, tam/6);
     }
@@ -374,8 +374,8 @@ bool DrawQueen(int modelLoc, int corLoc, int shaderProgram, int tam){
     glUniform3f(corLoc, 0.85f, 0.85f, 0.85f);
 
     glm::mat4 modelDama = glm::mat4(1.0f);
-    modelDama = glm::translate(modelDama, glm::vec3(3.5f, 0.2f, 7.5f));
-    modelDama = glm::scale(modelDama, glm::vec3(1.5f, 1.5f, 1.5f));
+    modelDama = glm::translate(modelDama, glm::vec3(3.45f, 0.1f, 6.9f));
+    modelDama = glm::scale(modelDama, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelDama));
     glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
@@ -383,8 +383,8 @@ bool DrawQueen(int modelLoc, int corLoc, int shaderProgram, int tam){
     glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
 
     modelDama = glm::mat4(1.0f);
-    modelDama = glm::translate(modelDama, glm::vec3(3.5f, 0.2f, 0.5f));
-    modelDama = glm::scale(modelDama, glm::vec3(1.5f, 1.5f, 1.5f));
+    modelDama = glm::translate(modelDama, glm::vec3(3.45f, 0.1f, -0.1f));
+    modelDama = glm::scale(modelDama, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelDama));
     glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
@@ -394,15 +394,15 @@ bool DrawQueen(int modelLoc, int corLoc, int shaderProgram, int tam){
 bool DrawKing(int modelLoc, int corLoc, int shaderProgram, int tam){
     glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
     glm::mat4 modelRei = glm::mat4(1.0f);
-    modelRei = glm::translate(modelRei, glm::vec3(4.5f, 0.2f, 7.5f));
-    modelRei = glm::scale(modelRei, glm::vec3(1.5f, 1.5f, 1.5f));
+    modelRei = glm::translate(modelRei, glm::vec3(4.45f, 0.1f, 6.25f));
+    modelRei = glm::scale(modelRei, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelRei));
     glDrawArrays(GL_TRIANGLES, 0, tam / 6);
 
     glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
     modelRei = glm::mat4(1.0f);
-    modelRei = glm::translate(modelRei, glm::vec3(4.5f, 0.2f, 0.5f));
-    modelRei = glm::scale(modelRei, glm::vec3(1.5f, 1.5f, 1.5f));
+    modelRei = glm::translate(modelRei, glm::vec3(4.45f, 0.1f, -0.75f));
+    modelRei = glm::scale(modelRei, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelRei));
     glDrawArrays(GL_TRIANGLES, 0, tam / 6);
 
