@@ -254,8 +254,12 @@ bool DrawBoard(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texMar
         return true;
 }
 
-bool DrawPawn(int modelLoc, int corLoc, int shaderProgram, int tam){
-    glUniform3f(corLoc, 0.85f, 0.85f, 0.85f);
+bool DrawPawn(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam){
+    
+    glUniform1f(usarTexturaLoc, 1);
+    glBindTexture(GL_TEXTURE_2D, texBrancas);
+    glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
+    
     for (int i = 0; i < 8; i++){
         glm::mat4 modelPeao = glm::mat4(1.0f);
         
@@ -264,8 +268,9 @@ bool DrawPawn(int modelLoc, int corLoc, int shaderProgram, int tam){
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelPeao));
         glDrawArrays(GL_TRIANGLES, 0, tam/6);
     }
+    
+    glBindTexture(GL_TEXTURE_2D, texPretas);
 
-    glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
     for (int i = 0; i < 8; i++){
         glm::mat4 modelPeao = glm::mat4(1.0f);
         
@@ -278,9 +283,11 @@ bool DrawPawn(int modelLoc, int corLoc, int shaderProgram, int tam){
     return true;
 }
 
-bool DrawBishop(int modelLoc, int corLoc, int shaderProgram, int tam){
+bool DrawBishop(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam){
     //bispos brancos
-    glUniform3f(corLoc, 0.85f, 0.85f, 0.85f);
+    glUniform1f(usarTexturaLoc, 1);
+    glBindTexture(GL_TEXTURE_2D, texBrancas);
+    glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
 
     glm::mat4 modelBispo = glm::mat4(1.0f);
     modelBispo = glm::translate(modelBispo, glm::vec3(2.45f, 0.1f, 7.5f));
@@ -295,7 +302,7 @@ bool DrawBishop(int modelLoc, int corLoc, int shaderProgram, int tam){
     glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
     //bispos pretos
-    glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
+    glBindTexture(GL_TEXTURE_2D, texPretas);
 
     modelBispo = glm::mat4(1.0f);
     modelBispo = glm::translate(modelBispo, glm::vec3(2.45f, 0.1f, 0.5f));
@@ -312,10 +319,12 @@ bool DrawBishop(int modelLoc, int corLoc, int shaderProgram, int tam){
     return true;
 }
 
-bool DrawKnight(int modelLoc, int corLoc, int shaderProgram, int tam){
+bool DrawKnight(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam){
     //cavalos brancos
-    glUniform3f(corLoc, 0.85f, 0.85f, 0.85f);
-
+    glUniform1f(usarTexturaLoc, 1);
+    glBindTexture(GL_TEXTURE_2D, texBrancas);
+    glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
+    
     glm::mat4 modelCavalo = glm::mat4(1.0f);
     modelCavalo = glm::translate(modelCavalo, glm::vec3(1.45f, 0.1f, 8.0f));
     modelCavalo = glm::scale(modelCavalo, glm::vec3(0.125f, 0.125f, 0.125f));
@@ -329,7 +338,7 @@ bool DrawKnight(int modelLoc, int corLoc, int shaderProgram, int tam){
     glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
     //cavalos pretos
-    glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
+    glBindTexture(GL_TEXTURE_2D, texPretas);
 
     modelCavalo = glm::mat4(1.0f);
     modelCavalo = glm::translate(modelCavalo, glm::vec3(1.45f, 0.1f, 1.0f));
@@ -346,9 +355,12 @@ bool DrawKnight(int modelLoc, int corLoc, int shaderProgram, int tam){
     return true;
 }
 
-bool DrawRook(int modelLoc, int corLoc, int shaderProgram, int tam){
+bool DrawRook(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam){
     
-    glUniform3f(corLoc, 0.85f, 0.85f, 0.85f);
+    glUniform1f(usarTexturaLoc, 1);
+    glBindTexture(GL_TEXTURE_2D, texBrancas);
+    glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
+
     for (int i : {0, 7}){
         glm::mat4 modelTorre = glm::mat4(1.0f);
         modelTorre = glm::translate(modelTorre, glm::vec3((float)i-0.05f+0.5f, 0.1f, 8.55f));
@@ -357,7 +369,8 @@ bool DrawRook(int modelLoc, int corLoc, int shaderProgram, int tam){
         glDrawArrays(GL_TRIANGLES, 0, tam/6);
     }
 
-    glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
+    glBindTexture(GL_TEXTURE_2D, texPretas);
+
     for (int i : {0, 7}){
         glm::mat4 modelTorre = glm::mat4(1.0f);
         modelTorre = glm::translate(modelTorre, glm::vec3((float)i-0.05f+0.5f, 0.1f, 1.55f));
@@ -369,9 +382,11 @@ bool DrawRook(int modelLoc, int corLoc, int shaderProgram, int tam){
     return true;
 }
 
-bool DrawQueen(int modelLoc, int corLoc, int shaderProgram, int tam){
+bool DrawQueen(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam){
     //dama branca
-    glUniform3f(corLoc, 0.85f, 0.85f, 0.85f);
+    glUniform1f(usarTexturaLoc, 1);
+    glBindTexture(GL_TEXTURE_2D, texBrancas);
+    glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
 
     glm::mat4 modelDama = glm::mat4(1.0f);
     modelDama = glm::translate(modelDama, glm::vec3(3.45f, 0.1f, 6.9f));
@@ -380,7 +395,7 @@ bool DrawQueen(int modelLoc, int corLoc, int shaderProgram, int tam){
     glDrawArrays(GL_TRIANGLES, 0, tam/6);
 
     //dama preta
-    glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
+    glBindTexture(GL_TEXTURE_2D, texPretas);
 
     modelDama = glm::mat4(1.0f);
     modelDama = glm::translate(modelDama, glm::vec3(3.45f, 0.1f, -0.1f));
@@ -391,15 +406,20 @@ bool DrawQueen(int modelLoc, int corLoc, int shaderProgram, int tam){
     return true;
 }
 
-bool DrawKing(int modelLoc, int corLoc, int shaderProgram, int tam){
+bool DrawKing(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam){
+    
+    glUniform1f(usarTexturaLoc, 1);
+    glBindTexture(GL_TEXTURE_2D, texBrancas);
     glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
+
     glm::mat4 modelRei = glm::mat4(1.0f);
     modelRei = glm::translate(modelRei, glm::vec3(4.45f, 0.1f, 6.25f));
     modelRei = glm::scale(modelRei, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelRei));
     glDrawArrays(GL_TRIANGLES, 0, tam / 6);
 
-    glUniform3f(corLoc, 0.1f, 0.1f, 0.1f);
+    glBindTexture(GL_TEXTURE_2D, texPretas);
+
     modelRei = glm::mat4(1.0f);
     modelRei = glm::translate(modelRei, glm::vec3(4.45f, 0.1f, -0.75f));
     modelRei = glm::scale(modelRei, glm::vec3(0.125f, 0.125f, 0.125f));
@@ -596,6 +616,8 @@ int main() {
     unsigned int texMarmore = CarregarTextura("textures/marble.jpg");
     unsigned int texMarmoreEscuro = CarregarTextura("textures/blackmarble.jpg");
     unsigned int texMadeira = CarregarTextura("textures/wood.jpg");
+    unsigned int texBrancas = CarregarTextura("textures/onyx.jpg");
+    unsigned int texPretas = CarregarTextura("textures/blackmetal.jpg");
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
@@ -696,7 +718,6 @@ int main() {
         DrawBoard(modelLoc, corLoc, usarTexturaLoc, texMarmore, texMarmoreEscuro, texMadeira, shaderProgram);
 
         //decide o brilho ao bater a luz no material desenhado
-        glUniform1i(usarTexturaLoc, 0);
         glUniform1f(brilhoLocal, 1.2f); 
         glUniform1f(focoLoc, 128.0f); 
         
@@ -704,27 +725,28 @@ int main() {
         glUniform1f(difusaLoc, 0.9f);
         //desenho dos peões
         glBindVertexArray(VAO_Peao);
-        DrawPawn(modelLoc, corLoc, shaderProgram, verticesPeao.size());
-
+        DrawPawn(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesPeao.size());
+        
+        glUniform1i(usarTexturaLoc, 0);
         //desenho dos bispos
         glBindVertexArray(VAO_Bispo);
-        DrawBishop(modelLoc, corLoc, shaderProgram, verticesBispo.size());
+        DrawBishop(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesBispo.size());
 
         //desenho dos cavalos
         glBindVertexArray(VAO_Cavalo);
-        DrawKnight(modelLoc, corLoc, shaderProgram, verticesCavalo.size());
+        DrawKnight(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesCavalo.size());
 
         //desenho das torres
         glBindVertexArray(VAO_Torre);        
-        DrawRook(modelLoc, corLoc, shaderProgram, verticesTorre.size());
+        DrawRook(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesTorre.size());
 
         //desenho das damas
         glBindVertexArray(VAO_Dama);
-        DrawQueen(modelLoc, corLoc, shaderProgram, verticesDama.size());
+        DrawQueen(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesDama.size());
 
         //desenho dos reis
         glBindVertexArray(VAO_Rei);
-        DrawKing(modelLoc, corLoc, shaderProgram, verticesRei.size());
+        DrawKing(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesRei.size());
 
         //troca os buffers e verifica eventos do sistema (mouse, teclado)
         glfwSwapBuffers(window);
