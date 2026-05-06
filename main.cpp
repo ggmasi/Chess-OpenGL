@@ -266,7 +266,7 @@ bool DrawPawn(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBran
         modelPeao = glm::translate(modelPeao, glm::vec3((float)i - 0.05f + 0.5f, 0.1f, 8.1f));
         modelPeao = glm::scale(modelPeao, glm::vec3(0.125f, 0.125f, 0.125f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelPeao));
-        glDrawArrays(GL_TRIANGLES, 0, tam/6);
+        glDrawArrays(GL_TRIANGLES, 0, tam/8);
     }
     
     glBindTexture(GL_TEXTURE_2D, texPretas);
@@ -277,7 +277,7 @@ bool DrawPawn(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBran
         modelPeao = glm::translate(modelPeao, glm::vec3((float)i - 0.05f +0.5f, 0.1f, 3.1f));
         modelPeao = glm::scale(modelPeao, glm::vec3(0.125f, 0.125f, 0.125f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelPeao));
-        glDrawArrays(GL_TRIANGLES, 0, tam/6);
+        glDrawArrays(GL_TRIANGLES, 0, tam/8);
     }
 
     return true;
@@ -293,13 +293,13 @@ bool DrawBishop(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBr
     modelBispo = glm::translate(modelBispo, glm::vec3(2.45f, 0.1f, 7.5f));
     modelBispo = glm::scale(modelBispo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
-    glDrawArrays(GL_TRIANGLES, 0, tam/6);
+    glDrawArrays(GL_TRIANGLES, 0, tam/8);
 
     modelBispo = glm::mat4(1.0f);
     modelBispo = glm::translate(modelBispo, glm::vec3(5.45f, 0.1f, 7.5f));
     modelBispo = glm::scale(modelBispo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
-    glDrawArrays(GL_TRIANGLES, 0, tam/6);
+    glDrawArrays(GL_TRIANGLES, 0, tam/8);
 
     //bispos pretos
     glBindTexture(GL_TEXTURE_2D, texPretas);
@@ -308,13 +308,13 @@ bool DrawBishop(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBr
     modelBispo = glm::translate(modelBispo, glm::vec3(2.45f, 0.1f, 0.5f));
     modelBispo = glm::scale(modelBispo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
-    glDrawArrays(GL_TRIANGLES, 0, tam/6);
+    glDrawArrays(GL_TRIANGLES, 0, tam/8);
 
     modelBispo = glm::mat4(1.0f);
     modelBispo = glm::translate(modelBispo, glm::vec3(5.45f, 0.1f, 0.5f));
     modelBispo = glm::scale(modelBispo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
-    glDrawArrays(GL_TRIANGLES, 0, tam/6);
+    glDrawArrays(GL_TRIANGLES, 0, tam/8);
 
     return true;
 }
@@ -329,13 +329,13 @@ bool DrawKnight(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBr
     modelCavalo = glm::translate(modelCavalo, glm::vec3(1.45f, 0.1f, 8.0f));
     modelCavalo = glm::scale(modelCavalo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCavalo));
-    glDrawArrays(GL_TRIANGLES, 0, tam/6);
+    glDrawArrays(GL_TRIANGLES, 0, tam/8);
 
     modelCavalo = glm::mat4(1.0f);
     modelCavalo = glm::translate(modelCavalo, glm::vec3(6.45f, 0.1f, 8.0f));
     modelCavalo = glm::scale(modelCavalo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCavalo));
-    glDrawArrays(GL_TRIANGLES, 0, tam/6);
+    glDrawArrays(GL_TRIANGLES, 0, tam/8);
 
     //cavalos pretos
     glBindTexture(GL_TEXTURE_2D, texPretas);
@@ -344,13 +344,13 @@ bool DrawKnight(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBr
     modelCavalo = glm::translate(modelCavalo, glm::vec3(1.45f, 0.1f, 1.0f));
     modelCavalo = glm::scale(modelCavalo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCavalo));
-    glDrawArrays(GL_TRIANGLES, 0, tam/6);
+    glDrawArrays(GL_TRIANGLES, 0, tam/8);
 
     modelCavalo = glm::mat4(1.0f);
     modelCavalo = glm::translate(modelCavalo, glm::vec3(6.45f, 0.1f, 1.0f));
     modelCavalo = glm::scale(modelCavalo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCavalo));
-    glDrawArrays(GL_TRIANGLES, 0, tam/6);
+    glDrawArrays(GL_TRIANGLES, 0, tam/8);
 
     return true;
 }
@@ -366,7 +366,7 @@ bool DrawRook(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBran
         modelTorre = glm::translate(modelTorre, glm::vec3((float)i-0.05f+0.5f, 0.1f, 8.55f));
         modelTorre = glm::scale(modelTorre, glm::vec3(0.125f, 0.125f, 0.125f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelTorre));
-        glDrawArrays(GL_TRIANGLES, 0, tam/6);
+        glDrawArrays(GL_TRIANGLES, 0, tam/8);
     }
 
     glBindTexture(GL_TEXTURE_2D, texPretas);
@@ -376,7 +376,7 @@ bool DrawRook(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBran
         modelTorre = glm::translate(modelTorre, glm::vec3((float)i-0.05f+0.5f, 0.1f, 1.55f));
         modelTorre = glm::scale(modelTorre, glm::vec3(0.125f, 0.125f, 0.125f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelTorre));
-        glDrawArrays(GL_TRIANGLES, 0, tam/6);
+        glDrawArrays(GL_TRIANGLES, 0, tam/8);
     }
 
     return true;
@@ -392,7 +392,7 @@ bool DrawQueen(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBra
     modelDama = glm::translate(modelDama, glm::vec3(3.45f, 0.1f, 6.9f));
     modelDama = glm::scale(modelDama, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelDama));
-    glDrawArrays(GL_TRIANGLES, 0, tam/6);
+    glDrawArrays(GL_TRIANGLES, 0, tam/8);
 
     //dama preta
     glBindTexture(GL_TEXTURE_2D, texPretas);
@@ -401,7 +401,7 @@ bool DrawQueen(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBra
     modelDama = glm::translate(modelDama, glm::vec3(3.45f, 0.1f, -0.1f));
     modelDama = glm::scale(modelDama, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelDama));
-    glDrawArrays(GL_TRIANGLES, 0, tam/6);
+    glDrawArrays(GL_TRIANGLES, 0, tam/8);
 
     return true;
 }
@@ -574,7 +574,7 @@ int main() {
         0.0f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
         0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f
     };
-
+    
     //estruturas para desenhar os objetos
     unsigned int VBO_Tabuleiro;
     unsigned int VAO_Tabuleiro;
@@ -596,23 +596,23 @@ int main() {
     LoadOBJ("models/knight.obj", verticesCavalo);
     unsigned int VAO_Cavalo, VBO_Cavalo;
     SetupGPUModel(verticesCavalo.data(), verticesCavalo.size()*sizeof(float), VAO_Cavalo, VBO_Cavalo);
-
+    
     vector<float> verticesTorre;
     LoadOBJ("models/rook.obj", verticesTorre);
     unsigned int VAO_Torre, VBO_Torre;
     SetupGPUModel(verticesTorre.data(), verticesTorre.size()*sizeof(float), VAO_Torre, VBO_Torre);
-
+    
     vector<float> verticesDama;
     LoadOBJ("models/queen.obj", verticesDama);
     unsigned int VAO_Dama, VBO_Dama;
     SetupGPUModel(verticesDama.data(), verticesDama.size()*sizeof(float), VAO_Dama, VBO_Dama);
-
+    
     vector<float> verticesRei;
     LoadOBJ("models/king.obj", verticesRei);
     unsigned int VAO_Rei, VBO_Rei;
     SetupGPUModel(verticesRei.data(), verticesRei.size() * sizeof(float), VAO_Rei, VBO_Rei);
 
-
+    
     unsigned int texMarmore = CarregarTextura("textures/marble.jpg");
     unsigned int texMarmoreEscuro = CarregarTextura("textures/blackmarble.jpg");
     unsigned int texMadeira = CarregarTextura("textures/wood.jpg");
@@ -621,10 +621,22 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
+    
+    int projecaoLoc = glGetUniformLocation(shaderProgram, "projecao");
+    int viewLoc = glGetUniformLocation(shaderProgram, "view");
+    int modelLoc = glGetUniformLocation(shaderProgram, "model");
+    int corLoc = glGetUniformLocation(shaderProgram, "corCasa");
+    int ligthPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
+    int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");
+    int usarTexturaLoc = glGetUniformLocation(shaderProgram, "usarTextura");
+    int brilhoLocal = glGetUniformLocation(shaderProgram, "brilhoMaterial");
+    int focoLoc = glGetUniformLocation(shaderProgram, "focoBrilho");
+    int difusaLoc = glGetUniformLocation(shaderProgram, "intensidadeDifusa");
+    
 
     bool cameraBrancas = true;
     bool teclaCApertada = false;
-
+    
     float deltaTime = 0.0f; //tempo entre o frame atual e o último frame
     float lastFrame = 0.0f; //tempo do último frame
 
@@ -677,7 +689,6 @@ int main() {
         
         //cria a matriz de projeção e envia para a GPU
         glm::mat4 projecao = glm::perspective(glm::radians(45.0f), proporcaoTela, 0.1f, 100.0f);
-        int projecaoLoc = glGetUniformLocation(shaderProgram, "projecao");
         glUniformMatrix4fv(projecaoLoc, 1, GL_FALSE, glm::value_ptr(projecao));
 
         anguloAtual = anguloAtual + (anguloAlvo-anguloAtual)*1.5f*deltaTime;
@@ -690,27 +701,16 @@ int main() {
             glm::vec3(camX, 8.0f, camZ), //olho atrás das brancas
             glm::vec3(4.0f, 0.0f, 4.0f),  //centro do tabuleiro
             glm::vec3(0.0f, 1.0f, 0.0f)   //vetor para cima
-        );;
-        int viewLoc = glGetUniformLocation(shaderProgram, "view");
+        );
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
         //pega as localizações dos uniforms
-        int modelLoc = glGetUniformLocation(shaderProgram, "model");
-        int corLoc = glGetUniformLocation(shaderProgram, "corCasa");
-
-        int ligthPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
         glUniform3f(ligthPosLoc, 4.0f, 10.0f, 4.0f);
 
-        int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");
         glUniform3f(viewPosLoc, camX, 8.0f, camZ);
 
 
-        int usarTexturaLoc = glGetUniformLocation(shaderProgram, "usarTextura");
-
         //desenha o tabuleiro
-        int brilhoLocal = glGetUniformLocation(shaderProgram, "brilhoMaterial");
-        int focoLoc = glGetUniformLocation(shaderProgram, "focoBrilho");
-        int difusaLoc = glGetUniformLocation(shaderProgram, "intensidadeDifusa");
         glUniform1f(brilhoLocal, 0.3f);
         glUniform1f(focoLoc, 32.0f);
         glUniform1f(difusaLoc, 0.7f);
