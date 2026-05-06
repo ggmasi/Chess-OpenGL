@@ -456,11 +456,19 @@ int main() {
     
     //inicializa o GLEW (carrega as funções do OpenGL)
     glewExperimental = GL_TRUE; 
-    if (glewInit() != GLEW_OK) {
-        cerr << "Falha ao inicializar o GLEW" << endl;
-        return -1;
-    }
+    GLenum err = glewInit();
 
+    // O "Unknown error" ou "Missing GL version" no Core Profile 
+    // muitas vezes pode ser ignorado se as funções básicas forem carregadas.
+    if (err != GLEW_OK) {
+        string erroStr = (const char*)glewGetErrorString(err);
+        if (erroStr != "Unknown error") { // Erro específico do Fedora
+            cerr << "Falha ao inicializar o GLEW: " << erroStr << endl;
+            return -1;
+        }
+        // Se for "Unknown error", limpamos o erro do OpenGL que o GLEW costuma deixar no log
+        glGetError(); 
+    }
 
     string codigoVertexShader = ReadShaderFile("vertex_shader.glsl");
 
