@@ -179,7 +179,7 @@ void SetupGPUModel(float* vertices, size_t tam, unsigned int& VAO, unsigned int&
     glBindVertexArray(0);
 }
 
-bool DrawBoard(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texMarmore, unsigned int texMarmoreEscuro, unsigned int texMadeira, int shaderProgram){
+bool DrawBoard(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texMarmore, unsigned int texMarmoreEscuro, unsigned int texMadeira, int shaderProgram, int escalaTexturaLoc){
 
     glUniform1i(usarTexturaLoc, 1);
 
@@ -208,7 +208,6 @@ bool DrawBoard(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texMar
 
         
         // glUniform3f(corLoc, 0.3f, 0.15f, 0.05f); // Cor sólida para a MarmoreEscuro
-        int escalaTexturaLoc = glGetUniformLocation(shaderProgram, "escalaTextura");
         glUniform2f(escalaTexturaLoc, 1.0f, 1.0f);
         
         glUniform1i(usarTexturaLoc, 1);
@@ -632,7 +631,7 @@ int main() {
     int brilhoLocal = glGetUniformLocation(shaderProgram, "brilhoMaterial");
     int focoLoc = glGetUniformLocation(shaderProgram, "focoBrilho");
     int difusaLoc = glGetUniformLocation(shaderProgram, "intensidadeDifusa");
-    
+    int escalaTexturaLoc = glGetUniformLocation(shaderProgram, "escalaTextura");
 
     bool cameraBrancas = true;
     bool teclaCApertada = false;
@@ -715,7 +714,7 @@ int main() {
         glUniform1f(focoLoc, 32.0f);
         glUniform1f(difusaLoc, 0.7f);
         glBindVertexArray(VAO_Tabuleiro);
-        DrawBoard(modelLoc, corLoc, usarTexturaLoc, texMarmore, texMarmoreEscuro, texMadeira, shaderProgram);
+        DrawBoard(modelLoc, corLoc, usarTexturaLoc, texMarmore, texMarmoreEscuro, texMadeira, shaderProgram, escalaTexturaLoc);
 
         //decide o brilho ao bater a luz no material desenhado
         glUniform1f(brilhoLocal, 1.2f); 
