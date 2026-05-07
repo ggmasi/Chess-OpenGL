@@ -520,7 +520,64 @@ int main() {
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
+
+
+    codigoVertexShader = ReadShaderFile("bg_vertex_shader.glsl");
+
+    //converte a string para um ponteiro de caracteres
+    vertexShaderSource = codigoVertexShader.c_str();
+
+    //declaração do vertexShader
+    vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+    //atribuição do codigo fonte do shader ao objeto
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+
+
+    //verificação se a compilação ocorreu corretamente
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if(!success){
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        cerr << "ERROR::BACKGROUND::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << endl;
+    }
+
+
+    codigoFragmentShader = ReadShaderFile("bg_fragment_shader.glsl");
+    //converte a string para um ponteiro de caracteres
+    fragmentShaderSource = codigoFragmentShader.c_str();
     
+    //declaração do fragmentShader
+    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    //atribuição do codigo fonte do shader ao objeto
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+    //verificação se a compilação ocorreu corretamente
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if(!success){
+        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        cerr << "ERROR::BACKGROUND::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << endl;
+    }
+
+    //declaracao do shaderProgram
+    unsigned int bgShaderProgram = glCreateProgram();
+
+    //atribuição dos shaders anteriores ao shaderProgram
+    glAttachShader(bgShaderProgram, vertexShader);
+    glAttachShader(bgShaderProgram, fragmentShader);
+    glLinkProgram(bgShaderProgram);
+
+    //verificação se a compilação ocorreu corretamente
+    glGetProgramiv(bgShaderProgram, GL_LINK_STATUS, &success);
+    if(!success){
+        glGetShaderInfoLog(shaderProgram, 512, NULL, infoLog);
+        cerr << "ERROR::BACKGROUND::SHADER::PROGRAM::COMPILATION_FAILED\n" << infoLog << endl;
+    }
+
+    //com o shaderProgram já compilado, tanto o vertex quanto o fragmente podem ser deletados
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
 
     //vertices das faces do cubo e suas normais
     float verticesCubo[] = {
@@ -573,7 +630,23 @@ int main() {
         0.0f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
         0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f
     };
-    
+
+    //vértices para o background (adição das normais "falsas" para adaptar à utilização do SetupGPUModel())
+    float quadVertices[] = { 
+        //posições (X, Y, Z) | normais "Falsas" | textura (U, V)
+        -1.0f,  1.0f, 0.99f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+        -1.0f, -1.0f, 0.99f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+        1.0f, -1.0f, 0.99f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+
+        -1.0f,  1.0f, 0.99f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+        1.0f, -1.0f, 0.99f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+        1.0f,  1.0f, 0.99f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f
+    };
+
+    unsigned int bgVAO, bgVBO;
+    SetupGPUModel(quadVertices, sizeof(quadVertices), bgVAO, bgVBO);
+
+
     //estruturas para desenhar os objetos
     unsigned int VBO_Tabuleiro;
     unsigned int VAO_Tabuleiro;
@@ -617,6 +690,7 @@ int main() {
     unsigned int texMadeira = CarregarTextura("textures/wood.jpg");
     unsigned int texBrancas = CarregarTextura("textures/onyx.jpg");
     unsigned int texPretas = CarregarTextura("textures/blackmetal.jpg");
+    unsigned int texBiblioteca = CarregarTextura("textures/a.jpg");    
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
@@ -683,7 +757,19 @@ int main() {
         //renderização: Pinta a tela com uma cor de fundo (Azul escuro)
         glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
+
+
+        glDepthMask(GL_FALSE);
+
+        glUseProgram(bgShaderProgram);
+        glBindVertexArray(bgVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texBiblioteca);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        glDepthMask(GL_TRUE);
+
+
         glUseProgram(shaderProgram);
         
         //cria a matriz de projeção e envia para a GPU
