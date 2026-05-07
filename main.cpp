@@ -698,7 +698,7 @@ int main() {
     unsigned int texMadeira = CarregarTextura("textures/wood.jpg");
     unsigned int texBrancas = CarregarTextura("textures/onyx.jpg");
     unsigned int texPretas = CarregarTextura("textures/blackmetal.jpg");
-    unsigned int texBiblioteca = CarregarTextura("textures/a.jpg");    
+    unsigned int texBiblioteca = CarregarTextura("textures/biblioteca.jpg");    
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
