@@ -252,8 +252,9 @@ bool DrawBoard(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texMar
         glUniform2f(escalaTexturaLoc, 1.0f, 1.0f);
         return true;
 }
-
-bool DrawPawn(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam){
+// offset: deslocamento, movimento
+bool DrawPawn(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam,
+              float offsetPeaoBrancoE4 = 0.0f, float offsetPeaoPretoE5 = 0.0f, bool peaoPretoF7Comido = false){
     
     glUniform1f(usarTexturaLoc, 1);
     glBindTexture(GL_TEXTURE_2D, texBrancas);
@@ -261,8 +262,8 @@ bool DrawPawn(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBran
     
     for (int i = 0; i < 8; i++){
         glm::mat4 modelPeao = glm::mat4(1.0f);
-        
-        modelPeao = glm::translate(modelPeao, glm::vec3((float)i - 0.05f + 0.5f, 0.1f, 8.1f));
+        float dz = (i == 4) ? offsetPeaoBrancoE4 : 0.0f;
+        modelPeao = glm::translate(modelPeao, glm::vec3((float)i - 0.05f + 0.5f, 0.1f, 8.1f + dz));
         modelPeao = glm::scale(modelPeao, glm::vec3(0.125f, 0.125f, 0.125f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelPeao));
         glDrawArrays(GL_TRIANGLES, 0, tam/8);
@@ -272,8 +273,9 @@ bool DrawPawn(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBran
 
     for (int i = 0; i < 8; i++){
         glm::mat4 modelPeao = glm::mat4(1.0f);
-        
-        modelPeao = glm::translate(modelPeao, glm::vec3((float)i - 0.05f +0.5f, 0.1f, 3.1f));
+        float dz = (i == 4) ? offsetPeaoPretoE5 : 0.0f;
+        if (i == 5 && peaoPretoF7Comido) continue;
+        modelPeao = glm::translate(modelPeao, glm::vec3((float)i - 0.05f + 0.5f, 0.1f, 3.1f + dz));
         modelPeao = glm::scale(modelPeao, glm::vec3(0.125f, 0.125f, 0.125f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelPeao));
         glDrawArrays(GL_TRIANGLES, 0, tam/8);
@@ -282,7 +284,8 @@ bool DrawPawn(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBran
     return true;
 }
 
-bool DrawBishop(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam){
+bool DrawBishop(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam,
+                float offsetBispoF1X = 0.0f, float offsetBispoF1Z = 0.0f){
     //bispos brancos
     glUniform1f(usarTexturaLoc, 1);
     glBindTexture(GL_TEXTURE_2D, texBrancas);
@@ -295,7 +298,7 @@ bool DrawBishop(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBr
     glDrawArrays(GL_TRIANGLES, 0, tam/8);
 
     modelBispo = glm::mat4(1.0f);
-    modelBispo = glm::translate(modelBispo, glm::vec3(5.45f, 0.1f, 7.5f));
+    modelBispo = glm::translate(modelBispo, glm::vec3(5.45f + offsetBispoF1X, 0.1f, 7.5f + offsetBispoF1Z));
     modelBispo = glm::scale(modelBispo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
     glDrawArrays(GL_TRIANGLES, 0, tam/8);
@@ -318,7 +321,9 @@ bool DrawBishop(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBr
     return true;
 }
 
-bool DrawKnight(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam){
+bool DrawKnight(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam,
+                float offsetCavaloPretoC6 = 0.0f, float offsetCavaloPretoC6X = 0.0f,
+                float offsetCavaloPretoF6 = 0.0f, float offsetCavaloPretoF6X = 0.0f){
     //cavalos brancos
     glUniform1f(usarTexturaLoc, 1);
     glBindTexture(GL_TEXTURE_2D, texBrancas);
@@ -340,13 +345,13 @@ bool DrawKnight(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBr
     glBindTexture(GL_TEXTURE_2D, texPretas);
 
     modelCavalo = glm::mat4(1.0f);
-    modelCavalo = glm::translate(modelCavalo, glm::vec3(1.45f, 0.1f, 1.0f));
+    modelCavalo = glm::translate(modelCavalo, glm::vec3(1.45f + offsetCavaloPretoC6X, 0.1f, 1.0f + offsetCavaloPretoC6));
     modelCavalo = glm::scale(modelCavalo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCavalo));
     glDrawArrays(GL_TRIANGLES, 0, tam/8);
 
     modelCavalo = glm::mat4(1.0f);
-    modelCavalo = glm::translate(modelCavalo, glm::vec3(6.45f, 0.1f, 1.0f));
+    modelCavalo = glm::translate(modelCavalo, glm::vec3(6.45f + offsetCavaloPretoF6X, 0.1f, 1.0f + offsetCavaloPretoF6));
     modelCavalo = glm::scale(modelCavalo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCavalo));
     glDrawArrays(GL_TRIANGLES, 0, tam/8);
@@ -381,14 +386,15 @@ bool DrawRook(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBran
     return true;
 }
 
-bool DrawQueen(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam){
+bool DrawQueen(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam,
+               float damaBrancaX = 3.45f, float damaBrancaZ = 6.9f){
     //dama branca
     glUniform1f(usarTexturaLoc, 1);
     glBindTexture(GL_TEXTURE_2D, texBrancas);
     glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
 
     glm::mat4 modelDama = glm::mat4(1.0f);
-    modelDama = glm::translate(modelDama, glm::vec3(3.45f, 0.1f, 6.9f));
+    modelDama = glm::translate(modelDama, glm::vec3(damaBrancaX, 0.1f, damaBrancaZ));
     modelDama = glm::scale(modelDama, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelDama));
     glDrawArrays(GL_TRIANGLES, 0, tam/8);
@@ -717,6 +723,22 @@ int main() {
 
     bool cameraBrancas = true;
     bool teclaCApertada = false;
+
+    int passoAtual = 0;
+    bool teclaSpaceApertada = false;
+
+    float offsetPeaoBrancoE4 = 0.0f;
+    float offsetPeaoPretoE5 = 0.0f;
+    float damaBrancaX = 3.45f;
+    float damaBrancaZ = 6.9f;
+    float offsetCavaloPretoC6 = 0.0f;
+    float offsetCavaloPretoC6X = 0.0f;
+    float offsetCavaloPretoF6 = 0.0f;
+    float offsetCavaloPretoF6X = 0.0f;
+    float offsetBispoC4 = 0.0f;  
+    float offsetBispoF1X = 0.0f; 
+    float offsetBispoF1Z = 0.0f;
+    bool  peaoPretoF7Comido  = false;
     
     float deltaTime = 0.0f; //tempo entre o frame atual e o último frame
     float lastFrame = 0.0f; //tempo do último frame
@@ -748,6 +770,59 @@ int main() {
         }
         if(glfwGetKey(window, GLFW_KEY_C) == GLFW_RELEASE){
             teclaCApertada = false;
+        }
+
+        if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !teclaSpaceApertada){
+            passoAtual++;
+            teclaSpaceApertada = true;
+
+            if(passoAtual == 1){
+                offsetPeaoBrancoE4 = -2.0f;
+                anguloAlvo = -3.14159f / 2.0f;
+                cameraBrancas = false;
+            }
+            else if(passoAtual == 2){
+                offsetPeaoPretoE5 = 2.0f;
+                anguloAlvo = 3.14159f / 2.0f;
+                cameraBrancas = true;
+            }
+            else if(passoAtual == 3){
+                damaBrancaX = 7.45f;
+                damaBrancaZ = 2.85f;
+                anguloAlvo = -3.14159f / 2.0f;
+                cameraBrancas = false;
+            }
+            else if(passoAtual == 4){
+                offsetCavaloPretoC6 = 2.0f;
+                offsetCavaloPretoC6X = 1.0f;
+                anguloAlvo = 3.14159f / 2.0f;
+                cameraBrancas = true;
+            }
+            else if(passoAtual == 5){
+                offsetBispoF1X = -3.0f;
+                offsetBispoF1Z = -3.0f;
+                anguloAlvo = -3.14159f / 2.0f;
+                cameraBrancas = false;
+            }
+            else if(passoAtual == 6){
+                offsetCavaloPretoF6 = 2.0f;
+                offsetCavaloPretoF6X = -1.0f;
+                anguloAlvo = 3.14159f / 2.0f;
+                cameraBrancas = true;
+            }
+            else if(passoAtual == 7){
+                damaBrancaX = 5.45f;
+                damaBrancaZ = 0.85f;
+                peaoPretoF7Comido = true;
+                anguloAlvo = -3.14159f / 2.0f;
+                cameraBrancas = false;
+            }
+            else{
+                passoAtual = 7;
+            }
+        }
+        if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE){
+            teclaSpaceApertada = false;
         }
         //pega a largura e altura dinâmicas da janela
         int largura, altura;
@@ -818,16 +893,20 @@ int main() {
         glUniform1f(difusaLoc, 0.9f);
         //desenho dos peões
         glBindVertexArray(VAO_Peao);
-        DrawPawn(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesPeao.size());
+        DrawPawn(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesPeao.size(),
+                 offsetPeaoBrancoE4, offsetPeaoPretoE5, peaoPretoF7Comido);
         
         glUniform1i(usarTexturaLoc, 0);
         //desenho dos bispos
         glBindVertexArray(VAO_Bispo);
-        DrawBishop(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesBispo.size());
+        DrawBishop(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesBispo.size(),
+                   offsetBispoF1X, offsetBispoF1Z);
 
         //desenho dos cavalos
         glBindVertexArray(VAO_Cavalo);
-        DrawKnight(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesCavalo.size());
+        DrawKnight(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesCavalo.size(),
+                   offsetCavaloPretoC6, offsetCavaloPretoC6X,
+                   offsetCavaloPretoF6, offsetCavaloPretoF6X);
 
         //desenho das torres
         glBindVertexArray(VAO_Torre);        
@@ -835,7 +914,8 @@ int main() {
 
         //desenho das damas
         glBindVertexArray(VAO_Dama);
-        DrawQueen(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesDama.size());
+        DrawQueen(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesDama.size(),
+                  damaBrancaX, damaBrancaZ);
 
         //desenho dos reis
         glBindVertexArray(VAO_Rei);
