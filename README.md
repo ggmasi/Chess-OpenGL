@@ -2,6 +2,8 @@
 
 Visualização de uma cena 3D de xadrez implementada em C++ com OpenGL 3.3 Core Profile.
 
+![Gif mostrando a execução do código](jogo.gif)
+
 ## Tecnologias
 
 - **Linguagem:** C++
@@ -84,5 +86,4 @@ Descreva aqui em qual objeto a textura foi aplicada, qual arquivo de imagem foi 
 ```
 
 
-![Gif mostrando a execução do código](jogo.gif)
 
