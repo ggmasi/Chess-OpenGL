@@ -82,3 +82,7 @@ Descreva aqui em qual objeto a textura foi aplicada, qual arquivo de imagem foi 
     ├── knight.obj
     └── chessKitExport.obj
 ```
+
+
+![Gif mostrando a execução do código](jogo.gif)
+
