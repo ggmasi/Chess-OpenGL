@@ -31,7 +31,9 @@ g++ main.cpp -o chess -lGL -lGLEW -lglfw -lGLU
 
 | Tecla | Ação |
 |-------|------|
-| `C` | Alterna a câmera entre a perspectiva das brancas e das pretas |
+| `R` | Reseta o cenário |
+| `Espaço` | Dispara a animação do Mate do Pastor |
+| `C` | Alterna a câmera entre a perspectiva das brancas e das pretas enquanto a animação não está em andamento |
 | `ESC` | Fecha a aplicação |
 
 ## Especificações atendidas
