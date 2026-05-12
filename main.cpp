@@ -784,6 +784,7 @@ int main() {
         //entrada (ex: se apertar ESC, fecha a janela)
         if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
+        //ao apertar a tecla C e a animação não estiver em andamento, a câmera é movimentada
         if(glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && !teclaCApertada && !animEmAndamento){
             cameraBrancas = !cameraBrancas;
             if(cameraBrancas){
@@ -798,7 +799,7 @@ int main() {
         if(glfwGetKey(window, GLFW_KEY_C) == GLFW_RELEASE){
             teclaCApertada = false;
         }
-
+        //ao apertar "espaço" a animação do mate do pastor é disparada
         if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !teclaSpaceApertada){
             passoAtual++;
             teclaSpaceApertada = true;
@@ -926,7 +927,7 @@ int main() {
             float velSubida = 4.0f;
             float velAnimacao = 2.0f;
             float alturaMax = 1.0;
-
+            //os movimentos são divididos em 4 fases: levantar a peça, mover a peça, abaixar a peça e mover a câmera
             if(faseMovimento == 0){
                 if(passoAtual == 8){
                     faseMovimento = 1; //o tombo do rei não necessita subir a peça
@@ -1072,7 +1073,6 @@ int main() {
         glUniform1f(brilhoLocal, 1.2f); 
         glUniform1f(focoLoc, 128.0f); 
         
-        // O marfim é claro e espalha bem a luz base. Podemos subir a difusão!
         glUniform1f(difusaLoc, 0.9f);
         //desenho dos peões
         glBindVertexArray(VAO_Peao);
