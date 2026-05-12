@@ -254,7 +254,8 @@ bool DrawBoard(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texMar
 }
 // offset: deslocamento, movimento
 bool DrawPawn(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam,
-              float offsetPeaoBrancoE4 = 0.0f, float offsetPeaoPretoE5 = 0.0f, bool peaoPretoF7Comido = false){
+              float offsetPeaoBrancoE4 = 0.0f, float offsetPeaoPretoE5 = 0.0f, bool peaoPretoF7Comido = false,
+              float alturaBranco = 0.0f, float alturaPreto = 0.0f){
     
     glUniform1f(usarTexturaLoc, 1);
     glBindTexture(GL_TEXTURE_2D, texBrancas);
@@ -263,7 +264,8 @@ bool DrawPawn(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBran
     for (int i = 0; i < 8; i++){
         glm::mat4 modelPeao = glm::mat4(1.0f);
         float dz = (i == 4) ? offsetPeaoBrancoE4 : 0.0f;
-        modelPeao = glm::translate(modelPeao, glm::vec3((float)i - 0.05f + 0.5f, 0.1f, 8.1f + dz));
+        float dy = (i == 4) ? alturaBranco : 0.0f;
+        modelPeao = glm::translate(modelPeao, glm::vec3((float)i - 0.05f + 0.5f, 0.1f+dy, 8.1f + dz));
         modelPeao = glm::scale(modelPeao, glm::vec3(0.125f, 0.125f, 0.125f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelPeao));
         glDrawArrays(GL_TRIANGLES, 0, tam/8);
@@ -274,8 +276,9 @@ bool DrawPawn(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBran
     for (int i = 0; i < 8; i++){
         glm::mat4 modelPeao = glm::mat4(1.0f);
         float dz = (i == 4) ? offsetPeaoPretoE5 : 0.0f;
+        float dy = (i == 4) ? alturaPreto : 0.0f;
         if (i == 5 && peaoPretoF7Comido) continue;
-        modelPeao = glm::translate(modelPeao, glm::vec3((float)i - 0.05f + 0.5f, 0.1f, 3.1f + dz));
+        modelPeao = glm::translate(modelPeao, glm::vec3((float)i - 0.05f + 0.5f, 0.1f+dy, 3.1f + dz));
         modelPeao = glm::scale(modelPeao, glm::vec3(0.125f, 0.125f, 0.125f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelPeao));
         glDrawArrays(GL_TRIANGLES, 0, tam/8);
@@ -285,7 +288,7 @@ bool DrawPawn(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBran
 }
 
 bool DrawBishop(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam,
-                float offsetBispoF1X = 0.0f, float offsetBispoF1Z = 0.0f){
+                float offsetBispoF1X = 0.0f, float offsetBispoF1Z = 0.0f, float offsetBispoF1Y = 0.0f){
     //bispos brancos
     glUniform1f(usarTexturaLoc, 1);
     glBindTexture(GL_TEXTURE_2D, texBrancas);
@@ -298,7 +301,7 @@ bool DrawBishop(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBr
     glDrawArrays(GL_TRIANGLES, 0, tam/8);
 
     modelBispo = glm::mat4(1.0f);
-    modelBispo = glm::translate(modelBispo, glm::vec3(5.45f + offsetBispoF1X, 0.1f, 7.5f + offsetBispoF1Z));
+    modelBispo = glm::translate(modelBispo, glm::vec3(5.45f + offsetBispoF1X, 0.1f+offsetBispoF1Y, 7.5f + offsetBispoF1Z));
     modelBispo = glm::scale(modelBispo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelBispo));
     glDrawArrays(GL_TRIANGLES, 0, tam/8);
@@ -323,7 +326,8 @@ bool DrawBishop(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBr
 
 bool DrawKnight(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam,
                 float offsetCavaloPretoC6 = 0.0f, float offsetCavaloPretoC6X = 0.0f,
-                float offsetCavaloPretoF6 = 0.0f, float offsetCavaloPretoF6X = 0.0f){
+                float offsetCavaloPretoF6 = 0.0f, float offsetCavaloPretoF6X = 0.0f,
+                float offsetCavaloPretoC6Y = 0.0f, float offsetCavaloPretoF6Y = 0.0f){
     //cavalos brancos
     glUniform1f(usarTexturaLoc, 1);
     glBindTexture(GL_TEXTURE_2D, texBrancas);
@@ -345,13 +349,13 @@ bool DrawKnight(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBr
     glBindTexture(GL_TEXTURE_2D, texPretas);
 
     modelCavalo = glm::mat4(1.0f);
-    modelCavalo = glm::translate(modelCavalo, glm::vec3(1.45f + offsetCavaloPretoC6X, 0.1f, 1.0f + offsetCavaloPretoC6));
+    modelCavalo = glm::translate(modelCavalo, glm::vec3(1.45f + offsetCavaloPretoC6X, 0.1f+offsetCavaloPretoC6Y, 1.0f + offsetCavaloPretoC6));
     modelCavalo = glm::scale(modelCavalo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCavalo));
     glDrawArrays(GL_TRIANGLES, 0, tam/8);
 
     modelCavalo = glm::mat4(1.0f);
-    modelCavalo = glm::translate(modelCavalo, glm::vec3(6.45f + offsetCavaloPretoF6X, 0.1f, 1.0f + offsetCavaloPretoF6));
+    modelCavalo = glm::translate(modelCavalo, glm::vec3(6.45f + offsetCavaloPretoF6X, 0.1f+offsetCavaloPretoF6Y, 1.0f + offsetCavaloPretoF6));
     modelCavalo = glm::scale(modelCavalo, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelCavalo));
     glDrawArrays(GL_TRIANGLES, 0, tam/8);
@@ -387,14 +391,14 @@ bool DrawRook(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBran
 }
 
 bool DrawQueen(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam,
-               float damaBrancaX = 3.45f, float damaBrancaZ = 6.9f){
+               float damaBrancaX = 3.45f, float damaBrancaZ = 6.9f, float damaBrancaY = 0.0f){
     //dama branca
     glUniform1f(usarTexturaLoc, 1);
     glBindTexture(GL_TEXTURE_2D, texBrancas);
     glUniform3f(corLoc, 1.0f, 1.0f, 1.0f);
 
     glm::mat4 modelDama = glm::mat4(1.0f);
-    modelDama = glm::translate(modelDama, glm::vec3(damaBrancaX, 0.1f, damaBrancaZ));
+    modelDama = glm::translate(modelDama, glm::vec3(damaBrancaX, 0.1f+damaBrancaY, damaBrancaZ));
     modelDama = glm::scale(modelDama, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelDama));
     glDrawArrays(GL_TRIANGLES, 0, tam/8);
@@ -411,7 +415,7 @@ bool DrawQueen(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBra
     return true;
 }
 
-bool DrawKing(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam){
+bool DrawKing(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBrancas, unsigned int texPretas, int shaderProgram, int tam, float anguloReiPreto = 0.0f){
     
     glUniform1f(usarTexturaLoc, 1);
     glBindTexture(GL_TEXTURE_2D, texBrancas);
@@ -427,6 +431,7 @@ bool DrawKing(int modelLoc, int corLoc, int usarTexturaLoc, unsigned int texBran
 
     modelRei = glm::mat4(1.0f);
     modelRei = glm::translate(modelRei, glm::vec3(4.45f, 0.1f, -0.75f));
+    modelRei = glm::rotate(modelRei, anguloReiPreto, glm::vec3(1.0f, 0.0f, 0.0f)); //rotacao para o rei deitar ao tomar mate
     modelRei = glm::scale(modelRei, glm::vec3(0.125f, 0.125f, 0.125f));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelRei));
     glDrawArrays(GL_TRIANGLES, 0, tam / 6);
@@ -723,9 +728,11 @@ int main() {
 
     bool cameraBrancas = true;
     bool teclaCApertada = false;
+    bool teclaRApertada = false;
 
     int passoAtual = 0;
     bool teclaSpaceApertada = false;
+    bool animEmAndamento = false;
 
     float offsetPeaoBrancoE4 = 0.0f;
     float offsetPeaoPretoE5 = 0.0f;
@@ -739,6 +746,19 @@ int main() {
     float offsetBispoF1X = 0.0f; 
     float offsetBispoF1Z = 0.0f;
     bool  peaoPretoF7Comido  = false;
+    float anguloReiPreto = 0.0f;
+
+    float offsetPeaoBrancoE4_Alvo = 0.0f;
+    float offsetPeaoPretoE5_Alvo = 0.0f;
+    float damaBrancaX_Alvo = 3.45f;
+    float damaBrancaZ_Alvo = 6.9f;
+    float offsetCavaloPretoC6_Alvo = 0.0f;
+    float offsetCavaloPretoC6X_Alvo = 0.0f;
+    float offsetCavaloPretoF6_Alvo = 0.0f;
+    float offsetCavaloPretoF6X_Alvo = 0.0f;
+    float offsetBispoF1X_Alvo = 0.0f; 
+    float offsetBispoF1Z_Alvo = 0.0f;
+    float anguloReiPreto_Alvo = 0.0f;
     
     float deltaTime = 0.0f; //tempo entre o frame atual e o último frame
     float lastFrame = 0.0f; //tempo do último frame
@@ -746,9 +766,14 @@ int main() {
     //posicao inicial (90 graus)
     float anguloAtual = 3.14159f / 2.0f;
     float anguloAlvo = 3.14159f / 2.0f;
+    float proximoAngulo = 3.14159f / 2.0f;
 
     //raio do circulo que a camera vai fazer
     float raioCamera = 10.0f;
+
+    float alturaAnim = 0.1f; 
+    int faseMovimento = 0;
+    float delay = 0.0f;
 
     //o loop de renderização (Roda até a janela ser fechada)
     while (!glfwWindowShouldClose(window)) {
@@ -759,12 +784,14 @@ int main() {
         //entrada (ex: se apertar ESC, fecha a janela)
         if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
-        if(glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && !teclaCApertada){
+        if(glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && !teclaCApertada && !animEmAndamento){
             cameraBrancas = !cameraBrancas;
             if(cameraBrancas){
                 anguloAlvo = 3.14159f / 2.0f;
+                proximoAngulo = 3.14159f / 2.0f;
             }else{
                 anguloAlvo = -3.14159f / 2.0f;
+                proximoAngulo = -3.14159f / 2.0f;
             }
             teclaCApertada = true;
         }
@@ -775,54 +802,61 @@ int main() {
         if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !teclaSpaceApertada){
             passoAtual++;
             teclaSpaceApertada = true;
+            animEmAndamento = true;
 
-            if(passoAtual == 1){
-                offsetPeaoBrancoE4 = -2.0f;
-                anguloAlvo = -3.14159f / 2.0f;
-                cameraBrancas = false;
-            }
-            else if(passoAtual == 2){
-                offsetPeaoPretoE5 = 2.0f;
-                anguloAlvo = 3.14159f / 2.0f;
-                cameraBrancas = true;
-            }
-            else if(passoAtual == 3){
-                damaBrancaX = 7.45f;
-                damaBrancaZ = 2.85f;
-                anguloAlvo = -3.14159f / 2.0f;
-                cameraBrancas = false;
-            }
-            else if(passoAtual == 4){
-                offsetCavaloPretoC6 = 2.0f;
-                offsetCavaloPretoC6X = 1.0f;
-                anguloAlvo = 3.14159f / 2.0f;
-                cameraBrancas = true;
-            }
-            else if(passoAtual == 5){
-                offsetBispoF1X = -3.0f;
-                offsetBispoF1Z = -3.0f;
-                anguloAlvo = -3.14159f / 2.0f;
-                cameraBrancas = false;
-            }
-            else if(passoAtual == 6){
-                offsetCavaloPretoF6 = 2.0f;
-                offsetCavaloPretoF6X = -1.0f;
-                anguloAlvo = 3.14159f / 2.0f;
-                cameraBrancas = true;
-            }
-            else if(passoAtual == 7){
-                damaBrancaX = 5.45f;
-                damaBrancaZ = 0.85f;
-                peaoPretoF7Comido = true;
-                anguloAlvo = -3.14159f / 2.0f;
-                cameraBrancas = false;
-            }
-            else{
-                passoAtual = 7;
-            }
+            offsetPeaoBrancoE4_Alvo = -2.0f;
+            proximoAngulo = -3.14159f / 2.0f;
+            cameraBrancas = false;
+        
+        
         }
         if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE){
             teclaSpaceApertada = false;
+        }
+        if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS && !teclaRApertada){
+            teclaRApertada = true;
+
+            //reseta os controles da máquina de estados
+            passoAtual = 0;
+            animEmAndamento = false;
+            faseMovimento = 0;
+            delay = 0.0f;
+            peaoPretoF7Comido = false;
+            cameraBrancas = true;
+
+            //reseta a câmera
+            anguloAlvo = 3.14159f / 2.0f;
+            proximoAngulo = 3.14159f / 2.0f;
+
+            //reseta as posições atuais
+            offsetPeaoBrancoE4 = 0.0f;
+            offsetPeaoPretoE5 = 0.0f;
+            damaBrancaX = 3.45f;
+            damaBrancaZ = 6.9f;
+            offsetCavaloPretoC6 = 0.0f;
+            offsetCavaloPretoC6X = 0.0f;
+            offsetCavaloPretoF6 = 0.0f;
+            offsetCavaloPretoF6X = 0.0f;
+            offsetBispoF1X = 0.0f;
+            offsetBispoF1Z = 0.0f;
+            alturaAnim = 0.1f; 
+            anguloReiPreto = 0.0f;
+
+            //reseta as posições alvo
+            offsetPeaoBrancoE4_Alvo = 0.0f;
+            offsetPeaoPretoE5_Alvo = 0.0f;
+            damaBrancaX_Alvo = 3.45f;
+            damaBrancaZ_Alvo = 6.9f;
+            offsetCavaloPretoC6_Alvo = 0.0f;
+            offsetCavaloPretoC6X_Alvo = 0.0f;
+            offsetCavaloPretoF6_Alvo = 0.0f;
+            offsetCavaloPretoF6X_Alvo = 0.0f;
+            offsetBispoF1X_Alvo = 0.0f;
+            offsetBispoF1Z_Alvo = 0.0f;
+            anguloReiPreto_Alvo = 0.0f;
+        }
+        if(glfwGetKey(window, GLFW_KEY_R) == GLFW_RELEASE){
+            teclaRApertada = false;
         }
         //pega a largura e altura dinâmicas da janela
         int largura, altura;
@@ -833,7 +867,7 @@ int main() {
         
         //atualiza a área de desenho para ocupar a tela toda
         glViewport(0, 0, largura, altura);
-
+        
         //calcula a proporção da tela em determinado instante
         float proporcaoTela = (float)largura/(float)altura;
         
@@ -859,7 +893,156 @@ int main() {
         glm::mat4 projecao = glm::perspective(glm::radians(45.0f), proporcaoTela, 0.1f, 100.0f);
         glUniformMatrix4fv(projecaoLoc, 1, GL_FALSE, glm::value_ptr(projecao));
 
-        anguloAtual = anguloAtual + (anguloAlvo-anguloAtual)*1.5f*deltaTime;
+        float velAnim = 2.0f;
+        //calcula o movimento que as peças devem fazer
+        offsetPeaoBrancoE4 += (offsetPeaoBrancoE4_Alvo-offsetPeaoBrancoE4)*velAnim*deltaTime;
+        offsetPeaoPretoE5 += (offsetPeaoPretoE5_Alvo - offsetPeaoPretoE5) * velAnim * deltaTime;
+        
+        damaBrancaX += (damaBrancaX_Alvo - damaBrancaX) * velAnim * deltaTime;
+        damaBrancaZ += (damaBrancaZ_Alvo - damaBrancaZ) * velAnim * deltaTime;
+        
+        offsetCavaloPretoC6 += (offsetCavaloPretoC6_Alvo - offsetCavaloPretoC6) * velAnim * deltaTime;
+        offsetCavaloPretoC6X += (offsetCavaloPretoC6X_Alvo - offsetCavaloPretoC6X) * velAnim * deltaTime;
+        
+        offsetBispoF1X += (offsetBispoF1X_Alvo - offsetBispoF1X) * velAnim * deltaTime;
+        offsetBispoF1Z += (offsetBispoF1Z_Alvo - offsetBispoF1Z) * velAnim * deltaTime;
+        
+        offsetCavaloPretoF6 += (offsetCavaloPretoF6_Alvo - offsetCavaloPretoF6) * velAnim * deltaTime;
+        offsetCavaloPretoF6X += (offsetCavaloPretoF6X_Alvo - offsetCavaloPretoF6X) * velAnim * deltaTime;
+
+        //verifica a distância que falta apenas para a peça da jogada atual
+        float diffAtual = 0.0f;
+        
+        if (passoAtual == 1) diffAtual = abs(offsetPeaoBrancoE4_Alvo - offsetPeaoBrancoE4);
+        else if (passoAtual == 2) diffAtual = abs(offsetPeaoPretoE5_Alvo - offsetPeaoPretoE5);
+        else if (passoAtual == 3) diffAtual = abs(damaBrancaX_Alvo - damaBrancaX) + abs(damaBrancaZ_Alvo - damaBrancaZ);
+        else if (passoAtual == 4) diffAtual = abs(offsetCavaloPretoC6_Alvo - offsetCavaloPretoC6) + abs(offsetCavaloPretoC6X_Alvo - offsetCavaloPretoC6X);
+        else if (passoAtual == 5) diffAtual = abs(offsetBispoF1X_Alvo - offsetBispoF1X) + abs(offsetBispoF1Z_Alvo - offsetBispoF1Z);
+        else if (passoAtual == 6) diffAtual = abs(offsetCavaloPretoF6_Alvo - offsetCavaloPretoF6) + abs(offsetCavaloPretoF6X_Alvo - offsetCavaloPretoF6X);
+        else if (passoAtual == 7) diffAtual = abs(damaBrancaX_Alvo - damaBrancaX) + abs(damaBrancaZ_Alvo - damaBrancaZ);
+        else if (passoAtual == 8) diffAtual = abs(anguloReiPreto_Alvo - anguloReiPreto);
+        
+        if(animEmAndamento){
+            float velSubida = 4.0f;
+            float velAnimacao = 2.0f;
+            float alturaMax = 1.0;
+
+            if(faseMovimento == 0){
+                if(passoAtual == 8){
+                    faseMovimento = 1; //o tombo do rei não necessita subir a peça
+                }else{
+                    alturaAnim += velSubida*deltaTime;
+                    if(alturaAnim >= alturaMax){
+                        alturaAnim = alturaMax;
+                        faseMovimento = 1;
+                    }
+                }
+            }else if(faseMovimento == 1){
+                if (passoAtual == 1) offsetPeaoBrancoE4 += (offsetPeaoBrancoE4_Alvo - offsetPeaoBrancoE4) * velAnimacao * deltaTime;
+                else if (passoAtual == 2) offsetPeaoPretoE5 += (offsetPeaoPretoE5_Alvo - offsetPeaoPretoE5) * velAnimacao * deltaTime;
+                else if (passoAtual == 3) {
+                    damaBrancaX += (damaBrancaX_Alvo - damaBrancaX) * velAnimacao * deltaTime;
+                    damaBrancaZ += (damaBrancaZ_Alvo - damaBrancaZ) * velAnimacao * deltaTime;
+                }
+                else if (passoAtual == 4) {
+                    offsetCavaloPretoC6 += (offsetCavaloPretoC6_Alvo - offsetCavaloPretoC6) * velAnimacao * deltaTime;
+                    offsetCavaloPretoC6X += (offsetCavaloPretoC6X_Alvo - offsetCavaloPretoC6X) * velAnimacao * deltaTime;
+                }
+                else if (passoAtual == 5) {
+                    offsetBispoF1X += (offsetBispoF1X_Alvo - offsetBispoF1X) * velAnimacao * deltaTime;
+                    offsetBispoF1Z += (offsetBispoF1Z_Alvo - offsetBispoF1Z) * velAnimacao * deltaTime;
+                }
+                else if (passoAtual == 6) {
+                    offsetCavaloPretoF6 += (offsetCavaloPretoF6_Alvo - offsetCavaloPretoF6) * velAnimacao * deltaTime;
+                    offsetCavaloPretoF6X += (offsetCavaloPretoF6X_Alvo - offsetCavaloPretoF6X) * velAnimacao * deltaTime;
+                }
+                else if (passoAtual == 7) {
+                    damaBrancaX += (damaBrancaX_Alvo - damaBrancaX) * velAnimacao * deltaTime;
+                    damaBrancaZ += (damaBrancaZ_Alvo - damaBrancaZ) * velAnimacao * deltaTime;
+                }
+                else if (passoAtual == 8){
+                    anguloReiPreto += (anguloReiPreto_Alvo - anguloReiPreto)*velAnimacao*deltaTime;
+                }
+
+                // Se a peça atual chegou no destino horizontal, vai para a descida
+                if (diffAtual < 0.05f) {
+                    faseMovimento = 2; 
+                }
+            }else if(faseMovimento == 2){
+                if(alturaAnim > 0.1f){
+                    alturaAnim -= velSubida * deltaTime;
+                    if (alturaAnim <= 0.1f) {
+                        alturaAnim = 0.1f; 
+                        delay = 0.0f;
+                    }
+                }else{
+                    delay += deltaTime;
+                    if(delay >= 0.6f){
+                        anguloAlvo = proximoAngulo; 
+                        faseMovimento = 3; 
+                    }
+                }
+            }else if(faseMovimento == 3){
+                // Checa se a câmera chegou no ângulo alvo
+                if (abs(anguloAlvo - anguloAtual) < 0.05f) {
+                    passoAtual++;
+                    faseMovimento = 0; // Prepara a próxima peça para começar subindo
+                    
+                    // Configura os alvos horizontais do próximo movimento
+                    if (passoAtual == 2) {
+                        offsetPeaoPretoE5_Alvo = 2.0f;
+                        proximoAngulo = 3.14159f / 2.0f;
+                        cameraBrancas = true;
+                    }
+                    else if (passoAtual == 3) {
+                        damaBrancaX_Alvo = 7.45f;
+                        damaBrancaZ_Alvo = 2.85f;
+                        proximoAngulo = -3.14159f / 2.0f;
+                        cameraBrancas = false;
+                    }
+                    else if (passoAtual == 4) {
+                        offsetCavaloPretoC6_Alvo = 2.0f;
+                        offsetCavaloPretoC6X_Alvo = 1.0f;
+                        proximoAngulo = 3.14159f / 2.0f;
+                        cameraBrancas = true;
+                    }
+                    else if (passoAtual == 5) {
+                        offsetBispoF1X_Alvo = -3.0f;
+                        offsetBispoF1Z_Alvo = -3.0f;
+                        proximoAngulo = -3.14159f / 2.0f;
+                        cameraBrancas = false;
+                    }
+                    else if (passoAtual == 6) {
+                        offsetCavaloPretoF6_Alvo = 2.0f;
+                        offsetCavaloPretoF6X_Alvo = -1.0f;
+                        proximoAngulo = 3.14159f / 2.0f;
+                        cameraBrancas = true;
+                    }
+                    else if (passoAtual == 7) {
+                        damaBrancaX_Alvo = 5.45f;
+                        damaBrancaZ_Alvo = 0.85f;
+                        proximoAngulo = -3.14159f / 2.0f; 
+                        cameraBrancas = false;
+                    }
+                    else if (passoAtual == 8) {
+                        anguloReiPreto_Alvo = -1.5708f; //-90 graus em radianos, tomba para trás
+                        proximoAngulo = -3.14159f / 2.0f; //mantém a câmera parada
+                        cameraBrancas = false;
+                    }else if (passoAtual > 8){
+                        animEmAndamento = false; //XEQUE-MATE!
+                    }
+                }
+            }
+        }else{
+            anguloAlvo = proximoAngulo;
+        }
+    
+        anguloAtual = anguloAtual+(anguloAlvo-anguloAtual)*1.5f*deltaTime;
+        
+
+        if (passoAtual == 7 && abs(damaBrancaX - 5.45f) < 0.1f && abs(damaBrancaZ - 0.85f) < 0.1f) {
+            peaoPretoF7Comido = true;
+        }
 
         //cria e envia uma matriz de câmera
         float camX = 4.0f + cos(anguloAtual)*raioCamera;
@@ -894,19 +1077,23 @@ int main() {
         //desenho dos peões
         glBindVertexArray(VAO_Peao);
         DrawPawn(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesPeao.size(),
-                 offsetPeaoBrancoE4, offsetPeaoPretoE5, peaoPretoF7Comido);
+                 offsetPeaoBrancoE4, offsetPeaoPretoE5, peaoPretoF7Comido,
+                 (passoAtual == 1) ? alturaAnim : 0.1f,
+                 (passoAtual == 2) ? alturaAnim : 0.1f);
         
         glUniform1i(usarTexturaLoc, 0);
         //desenho dos bispos
         glBindVertexArray(VAO_Bispo);
         DrawBishop(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesBispo.size(),
-                   offsetBispoF1X, offsetBispoF1Z);
+                   offsetBispoF1X, offsetBispoF1Z, (passoAtual == 5) ? alturaAnim : 0.1f);
 
         //desenho dos cavalos
         glBindVertexArray(VAO_Cavalo);
         DrawKnight(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesCavalo.size(),
                    offsetCavaloPretoC6, offsetCavaloPretoC6X,
-                   offsetCavaloPretoF6, offsetCavaloPretoF6X);
+                   offsetCavaloPretoF6, offsetCavaloPretoF6X,
+                   (passoAtual == 4) ? alturaAnim : 0.1f,
+                   (passoAtual == 6) ? alturaAnim : 0.1f);
 
         //desenho das torres
         glBindVertexArray(VAO_Torre);        
@@ -915,11 +1102,11 @@ int main() {
         //desenho das damas
         glBindVertexArray(VAO_Dama);
         DrawQueen(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesDama.size(),
-                  damaBrancaX, damaBrancaZ);
+                  damaBrancaX, damaBrancaZ, (passoAtual == 3 || passoAtual == 7) ? alturaAnim : 0.1f);
 
         //desenho dos reis
         glBindVertexArray(VAO_Rei);
-        DrawKing(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesRei.size());
+        DrawKing(modelLoc, corLoc, usarTexturaLoc, texBrancas, texPretas, shaderProgram, verticesRei.size(), anguloReiPreto);
 
         //troca os buffers e verifica eventos do sistema (mouse, teclado)
         glfwSwapBuffers(window);
